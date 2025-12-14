@@ -56,6 +56,13 @@
 </script>
 
 <script>
+  const tg = Telegram.WebApp;
+const user = tg.initDataUnsafe?.user;
+
+if (!user) {
+  alert("Открой мини-приложение через Telegram");
+}
+
   Telegram.WebApp.ready();
 
   let data = JSON.parse(localStorage.getItem("darkIdle")) || {
