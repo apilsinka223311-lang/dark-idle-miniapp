@@ -17,6 +17,7 @@
       text-align: center;
       padding: 20px;
       margin: 0;
+      padding-bottom: 70px;
     }
 
     h1 { font-size: 28px; margin-bottom: 10px; }
@@ -118,6 +119,7 @@
   let data = {
     voids: 0,
     rate: 1,
+    is_vip: false,
     lastTime: Date.now()
   };
 
@@ -125,7 +127,8 @@
     const now = Date.now();
     const seconds = Math.floor((now - data.lastTime) / 1000);
     if (seconds > 0) {
-      data.voids += seconds * data.rate;
+      const vipMultiplier = data.is_vip ? 2 : 1;
+      data.voids += seconds * data.rate * vipMultiplier;
       data.lastTime = now;
     }
   }
@@ -134,7 +137,7 @@
     document.getElementById("counter").innerText =
       `VOID: ${Math.floor(data.voids)}`;
     document.getElementById("info").innerText =
-      `Скорость: ${data.rate} VOID/сек`;
+      `Скорость: ${data.rate} VOID/сек ${data.is_vip ? "👑 VIP" : ""}`;
   }
 
   function collect() {
@@ -167,10 +170,11 @@
       await supabase.from("players").insert({
         telegram_id: telegramId,
         voids: 0,
-        rate: 1
+        rate: 1,
+        is_vip: false
       });
 
-      return { voids: 0, rate: 1 };
+      return { voids: 0, rate: 1, is_vip: false };
     }
 
     return player;
@@ -182,6 +186,7 @@
       .update({
         voids: Math.floor(data.voids),
         rate: data.rate,
+        is_vip: data.is_vip,
         updated_at: new Date()
       })
       .eq("telegram_id", user.id);
@@ -190,7 +195,7 @@
   async function loadLeaderboard() {
     const { data: list } = await supabase
       .from("players")
-      .select("telegram_id, voids")
+      .select("telegram_id, voids, is_vip")
       .order("voids", { ascending: false })
       .limit(100);
 
@@ -201,7 +206,9 @@
       const row = document.createElement("div");
       const isMe = p.telegram_id === user.id;
 
-      row.innerText = `${i + 1}. ${isMe ? "🔥 Ты" : "Игрок"} — ${p.voids} VOID`;
+      row.innerText =
+        `${i + 1}. ${isMe ? "🔥 Ты" : "Игрок"} ${p.is_vip ? "👑" : ""} — ${p.voids} VOID`;
+
       row.style.color = isMe ? "#ffd700" : "#fff";
       row.style.fontWeight = isMe ? "bold" : "normal";
 
@@ -228,6 +235,7 @@
 
     data.voids = serverData.voids;
     data.rate = serverData.rate;
+    data.is_vip = serverData.is_vip;
     data.lastTime = Date.now();
 
     render();
