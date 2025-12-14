@@ -6,6 +6,7 @@
   <meta charset="UTF-8" />
   <title>Dark Idle</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
   body {
     background: #0e0e11;
@@ -44,6 +45,15 @@
 
 <button onclick="collect()">Забрать VOID</button>
 <button onclick="upgrade()">Улучшить добычу</button>
+<script>
+  const SUPABASE_URL = "https://edosyzmykmoajecmaamu.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_bHorYMm55LbnpSXg96WwVw_C4weLD_O";
+
+  const supabase = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+</script>
 
 <script>
   Telegram.WebApp.ready();
