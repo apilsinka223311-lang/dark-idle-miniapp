@@ -107,9 +107,40 @@ if (!user) {
     document.getElementById("info").innerText =
       `Скорость: ${data.rate} VOID/сек`;
   }
+async function loadPlayerFromServer() {
+  const telegramId = user.id;
 
-  updateIdle();
+  let { data: player, error } = await supabase
+    .from("players")
+    .select("*")
+    .eq("telegram_id", telegramId)
+    .single();
+
+  if (!player) {
+    await supabase.from("players").insert({
+      telegram_id: telegramId,
+      voids: 0,
+      rate: 1
+    });
+
+    return { voids: 0, rate: 1 };
+  }
+
+  return player;
+}
+
+ (async () => {
+  tg.ready();
+
+  const serverData = await loadPlayerFromServer();
+
+  data.voids = serverData.voids;
+  data.rate = serverData.rate;
+  data.lastTime = Date.now();
+
   render();
+})();
+
 </script>
 
 </body>
