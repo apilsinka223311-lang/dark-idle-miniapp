@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dark Idle</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    body {
+      background: #0e0e11;
+      color: #ffffff;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 40px;
+    }
+    button {
+      background: #6f42c1;
+      border: none;
+      padding: 15px 25px;
+      color: white;
+      font-size: 18px;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Dark Idle</h1>
+<p id="counter">VOID: 0</p>
+<button onclick="farm()">Фармить VOID</button>
+
+<script>
+  let voids = 0;
+
+  Telegram.WebApp.ready();
+
+  function farm() {
+    voids++;
+    document.getElementById("counter").innerText = "VOID: " + voids;
+  }
+</script>
+
+</body>
+</html>
