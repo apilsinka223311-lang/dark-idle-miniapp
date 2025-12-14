@@ -1,55 +1,99 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  
   <meta charset="UTF-8" />
   <title>Dark Idle</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
-  body {
-    background: #0e0e11;
-    color: #ffffff;
-    font-family: Arial, sans-serif;
-    text-align: center;
-    padding: 20px;
-    margin: 0;
-  }
-  h1 {
-    font-size: 32px;
-  }
-  p {
-    font-size: 20px;
-  }
-  button {
-    background: #6f42c1;
-    border: none;
-    padding: 18px 24px;
-    color: white;
-    font-size: 18px;
-    border-radius: 14px;
-    cursor: pointer;
-    width: 100%;
-    max-width: 320px;
-    margin: 10px auto;
-    display: block;
-  }
+    body {
+      background: #0e0e11;
+      color: #ffffff;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+      margin: 0;
+    }
+
+    h1 { font-size: 28px; margin-bottom: 10px; }
+    h2 { margin-top: 0; }
+
+    p { font-size: 18px; }
+
+    button {
+      background: #6f42c1;
+      border: none;
+      padding: 16px;
+      color: white;
+      font-size: 16px;
+      border-radius: 14px;
+      cursor: pointer;
+      width: 100%;
+      max-width: 320px;
+      margin: 8px auto;
+      display: block;
+    }
+
+    #tabs {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #14141a;
+      display: flex;
+      border-top: 1px solid #2a2a33;
+    }
+
+    #tabs button {
+      flex: 1;
+      margin: 0;
+      border-radius: 0;
+      background: transparent;
+      color: #aaa;
+    }
+
+    #tabs button.active {
+      color: #fff;
+      background: #1f1f2a;
+    }
+
+    #leaderboard div {
+      padding: 8px;
+      border-bottom: 1px solid #2a2a33;
+    }
   </style>
 </head>
+
 <body>
 
 <h1>Dark Idle</h1>
-<p id="counter">VOID: 0</p>
-<p id="info"></p>
 
-<button onclick="collect()">Забрать VOID</button>
-<button onclick="upgrade()">Улучшить добычу</button>
-  <hr style="margin: 30px 0; opacity: 0.3">
+<!-- GAME -->
+<div id="game">
+  <p id="counter">VOID: 0</p>
+  <p id="info"></p>
 
-<h2>🏆 Топ игроков</h2>
-<div id="leaderboard"></div>
+  <button onclick="collect()">Забрать VOID</button>
+  <button onclick="upgrade()">Улучшить добычу</button>
+</div>
 
+<!-- RATING -->
+<div id="rating" style="display:none">
+  <h2>🏆 Топ игроков</h2>
+  <div id="leaderboard"></div>
+</div>
+
+<!-- TABS -->
+<div id="tabs">
+  <button id="tab-game" class="active" onclick="showTab('game')">🎮 Игра</button>
+  <button id="tab-rating" onclick="showTab('rating')">🏆 Рейтинг</button>
+</div>
+
+<!-- SUPABASE INIT -->
 <script>
   const SUPABASE_URL = "https://edosyzmykmoajecmaamu.supabase.co";
   const SUPABASE_KEY = "sb_publishable_bHorYMm55LbnpSXg96WwVw_C4weLD_O";
@@ -60,17 +104,18 @@
   );
 </script>
 
+<!-- GAME LOGIC -->
 <script>
   const tg = Telegram.WebApp;
-const user = tg.initDataUnsafe?.user;
+  const user = tg.initDataUnsafe?.user;
 
-if (!user) {
-  alert("Открой мини-приложение через Telegram");
-}
+  if (!user) {
+    alert("Открой приложение через Telegram");
+  }
 
-  Telegram.WebApp.ready();
+  tg.ready();
 
-  let data = JSON.parse(localStorage.getItem("darkIdle")) || {
+  let data = {
     voids: 0,
     rate: 1,
     lastTime: Date.now()
@@ -83,31 +128,6 @@ if (!user) {
       data.voids += seconds * data.rate;
       data.lastTime = now;
     }
-    save();
-  }
-
-  function collect() {
-    updateIdle();
-    render();
-    savePlayerToServer();
-
-  }
-
-  function upgrade() {
-    if (data.voids >= 10) {
-      data.voids -= 10;
-      data.rate++;
-      save();
-      render();
-    } else {
-      alert("Недостаточно VOID");
-      savePlayerToServer();
-
-    }
-  }
-
-  function save() {
-    localStorage.setItem("darkIdle", JSON.stringify(data));
   }
 
   function render() {
@@ -116,90 +136,106 @@ if (!user) {
     document.getElementById("info").innerText =
       `Скорость: ${data.rate} VOID/сек`;
   }
+
+  function collect() {
+    updateIdle();
+    render();
+    savePlayerToServer();
+  }
+
+  function upgrade() {
+    if (data.voids >= 10) {
+      data.voids -= 10;
+      data.rate++;
+      render();
+      savePlayerToServer();
+    } else {
+      alert("Недостаточно VOID");
+    }
+  }
+
+  async function loadPlayerFromServer() {
+    const telegramId = user.id;
+
+    let { data: player } = await supabase
+      .from("players")
+      .select("*")
+      .eq("telegram_id", telegramId)
+      .single();
+
+    if (!player) {
+      await supabase.from("players").insert({
+        telegram_id: telegramId,
+        voids: 0,
+        rate: 1
+      });
+
+      return { voids: 0, rate: 1 };
+    }
+
+    return player;
+  }
+
   async function savePlayerToServer() {
-  await supabase
-    .from("players")
-    .update({
-      voids: Math.floor(data.voids),
-      rate: data.rate,
-      updated_at: new Date()
-    })
-    .eq("telegram_id", user.id);
-}
+    await supabase
+      .from("players")
+      .update({
+        voids: Math.floor(data.voids),
+        rate: data.rate,
+        updated_at: new Date()
+      })
+      .eq("telegram_id", user.id);
+  }
 
-async function loadPlayerFromServer() {
-  const telegramId = user.id;
+  async function loadLeaderboard() {
+    const { data: list } = await supabase
+      .from("players")
+      .select("telegram_id, voids")
+      .order("voids", { ascending: false })
+      .limit(100);
 
-  let { data: player, error } = await supabase
-    .from("players")
-    .select("*")
-    .eq("telegram_id", telegramId)
-    .single();
+    const board = document.getElementById("leaderboard");
+    board.innerHTML = "";
 
-  if (!player) {
-    await supabase.from("players").insert({
-      telegram_id: telegramId,
-      voids: 0,
-      rate: 1
+    list.forEach((p, i) => {
+      const row = document.createElement("div");
+      const isMe = p.telegram_id === user.id;
+
+      row.innerText = `${i + 1}. ${isMe ? "🔥 Ты" : "Игрок"} — ${p.voids} VOID`;
+      row.style.color = isMe ? "#ffd700" : "#fff";
+      row.style.fontWeight = isMe ? "bold" : "normal";
+
+      board.appendChild(row);
     });
-    async function loadLeaderboard() {
-  const { data, error } = await supabase
-    .from("players")
-    .select("telegram_id, voids")
-    .order("voids", { ascending: false })
-    .limit(100);
-
-  if (error) {
-    console.error(error);
-    return;
   }
 
-  const list = document.getElementById("leaderboard");
-  list.innerHTML = "";
+  function showTab(tab) {
+    document.getElementById("game").style.display =
+      tab === "game" ? "block" : "none";
+    document.getElementById("rating").style.display =
+      tab === "rating" ? "block" : "none";
 
-  data.forEach((player, index) => {
-    const row = document.createElement("div");
+    document.getElementById("tab-game").classList.toggle("active", tab === "game");
+    document.getElementById("tab-rating").classList.toggle("active", tab === "rating");
 
-    const isMe = player.telegram_id === user.id;
-
-    row.innerText = `${index + 1}. ${isMe ? "🔥 Ты" : "Игрок"} — ${player.voids} VOID`;
-
-    row.style.padding = "6px";
-    row.style.fontWeight = isMe ? "bold" : "normal";
-    row.style.color = isMe ? "#ffd700" : "#ffffff";
-
-    list.appendChild(row);
-  });
-}
-
-
-    return { voids: 0, rate: 1 };
+    if (tab === "rating") {
+      loadLeaderboard();
+    }
   }
 
-  return player;
-}
+  (async () => {
+    const serverData = await loadPlayerFromServer();
 
- (async () => {
-  tg.ready();
+    data.voids = serverData.voids;
+    data.rate = serverData.rate;
+    data.lastTime = Date.now();
 
-  const serverData = await loadPlayerFromServer();
+    render();
+    loadLeaderboard();
 
-  data.voids = serverData.voids;
-  data.rate = serverData.rate;
-  data.lastTime = Date.now();
-
-  render();
-   loadLeaderboard();
-   setInterval(() => {
-  savePlayerToServer();
-}, 15000); // каждые 15 секунд
-   setInterval(() => {
-  loadLeaderboard();
-}, 20000); // обновление каждые 20 сек
-
-
-})();
-
+    setInterval(savePlayerToServer, 15000);
+    setInterval(loadLeaderboard, 20000);
+  })();
 </script>
 
 </body>
