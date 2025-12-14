@@ -84,6 +84,8 @@ if (!user) {
   function collect() {
     updateIdle();
     render();
+    savePlayerToServer();
+
   }
 
   function upgrade() {
@@ -94,6 +96,8 @@ if (!user) {
       render();
     } else {
       alert("Недостаточно VOID");
+      savePlayerToServer();
+
     }
   }
 
@@ -107,6 +111,17 @@ if (!user) {
     document.getElementById("info").innerText =
       `Скорость: ${data.rate} VOID/сек`;
   }
+  async function savePlayerToServer() {
+  await supabase
+    .from("players")
+    .update({
+      voids: Math.floor(data.voids),
+      rate: data.rate,
+      updated_at: new Date()
+    })
+    .eq("telegram_id", user.id);
+}
+
 async function loadPlayerFromServer() {
   const telegramId = user.id;
 
@@ -139,6 +154,10 @@ async function loadPlayerFromServer() {
   data.lastTime = Date.now();
 
   render();
+   setInterval(() => {
+  savePlayerToServer();
+}, 15000); // каждые 15 секунд
+
 })();
 
 </script>
