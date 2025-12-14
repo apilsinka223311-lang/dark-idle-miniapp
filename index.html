@@ -20,6 +20,7 @@
       font-size: 18px;
       border-radius: 12px;
       cursor: pointer;
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -27,17 +28,59 @@
 
 <h1>Dark Idle</h1>
 <p id="counter">VOID: 0</p>
-<button onclick="farm()">Фармить VOID</button>
+<p id="info"></p>
+
+<button onclick="collect()">Забрать VOID</button>
+<button onclick="upgrade()">Улучшить добычу</button>
 
 <script>
-  let voids = 0;
-
   Telegram.WebApp.ready();
 
-  function farm() {
-    voids++;
-    document.getElementById("counter").innerText = "VOID: " + voids;
+  let data = JSON.parse(localStorage.getItem("darkIdle")) || {
+    voids: 0,
+    rate: 1,
+    lastTime: Date.now()
+  };
+
+  function updateIdle() {
+    const now = Date.now();
+    const seconds = Math.floor((now - data.lastTime) / 1000);
+    if (seconds > 0) {
+      data.voids += seconds * data.rate;
+      data.lastTime = now;
+    }
+    save();
   }
+
+  function collect() {
+    updateIdle();
+    render();
+  }
+
+  function upgrade() {
+    if (data.voids >= 10) {
+      data.voids -= 10;
+      data.rate++;
+      save();
+      render();
+    } else {
+      alert("Недостаточно VOID");
+    }
+  }
+
+  function save() {
+    localStorage.setItem("darkIdle", JSON.stringify(data));
+  }
+
+  function render() {
+    document.getElementById("counter").innerText =
+      `VOID: ${Math.floor(data.voids)}`;
+    document.getElementById("info").innerText =
+      `Скорость: ${data.rate} VOID/сек`;
+  }
+
+  updateIdle();
+  render();
 </script>
 
 </body>
