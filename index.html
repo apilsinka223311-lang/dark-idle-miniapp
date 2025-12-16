@@ -17,16 +17,88 @@
       text-align: center;
       padding: 20px;
       margin: 0;
-      padding-bottom: 70px;
+      padding-bottom: 100px;
     }
 
-    h1 { font-size: 28px; margin-bottom: 10px; }
-    h2 { margin-top: 0; }
+    h1 {
+      font-size: 26px;
+      margin-bottom: 16px;
+    }
 
-    p { font-size: 18px; }
+    /* ===== VOID CARD ===== */
+    .void-card {
+      background: radial-gradient(circle at top, #1a1a25, #0b0b0f);
+      border-radius: 24px;
+      padding: 30px 20px;
+      box-shadow:
+        0 0 40px rgba(111, 66, 193, 0.25),
+        inset 0 0 30px rgba(0,0,0,0.8);
+      margin-top: 20px;
+    }
 
-    button {
-      background: #6f42c1;
+    .void-orb {
+      position: relative;
+      width: 140px;
+      height: 140px;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #7b4dff, #2a124f, #000);
+      box-shadow:
+        0 0 30px rgba(123,77,255,0.8),
+        0 0 80px rgba(123,77,255,0.4);
+      animation: pulse 3s infinite ease-in-out;
+      overflow: hidden;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 0.85; }
+      50% { transform: scale(1.08); opacity: 1; }
+      100% { transform: scale(1); opacity: 0.85; }
+    }
+
+    .drip {
+      position: absolute;
+      top: 60%;
+      width: 6px;
+      height: 30px;
+      background: linear-gradient(
+        to bottom,
+        rgba(140,100,255,0.9),
+        rgba(140,100,255,0.2),
+        transparent
+      );
+      border-radius: 50%;
+      filter: blur(1px);
+      animation: drip 4s infinite ease-in-out;
+      opacity: 0.6;
+    }
+
+    .drip:nth-child(1) { left: 40%; animation-delay: 0s; }
+    .drip:nth-child(2) { left: 55%; animation-delay: 1.5s; }
+    .drip:nth-child(3) { left: 65%; animation-delay: 3s; }
+
+    @keyframes drip {
+      0% { transform: translateY(0) scaleY(0.3); opacity: 0; }
+      20% { opacity: 0.8; }
+      60% { transform: translateY(40px) scaleY(1); opacity: 0.6; }
+      100% { transform: translateY(80px) scaleY(0.2); opacity: 0; }
+    }
+
+    .void-amount {
+      font-size: 32px;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .void-sub {
+      font-size: 14px;
+      opacity: 0.7;
+      margin-bottom: 20px;
+    }
+
+    .void-btn {
+      background: linear-gradient(135deg, #6f42c1, #8a63ff);
+      box-shadow: 0 0 20px rgba(138,99,255,0.6);
       border: none;
       padding: 16px;
       color: white;
@@ -35,249 +107,72 @@
       cursor: pointer;
       width: 100%;
       max-width: 320px;
-      margin: 8px auto;
-      display: block;
+      margin: 10px auto;
     }
 
-    #tabs {
-    <div id="tabbar">
-
-  <div class="tab active" onclick="showTab('game', this)">
-    <div class="icon">◉</div>
-    <div class="label">VOID</div>
-  </div>
-
-  <div class="tab" onclick="showTab('rating', this)">
-    <div class="icon">⟁</div>
-    <div class="label">Ранг</div>
-  </div>
-
-</div>
-
+    .void-info {
+      margin-top: 15px;
+      font-size: 15px;
+      opacity: 0.85;
     }
 
-    #tabs button {
-      flex: 1;
-      margin: 0;
-      border-radius: 0;
-      background: transparent;
-      color: #aaa;
-    }
-
-    #tabs button.active {
-      color: #fff;
-      background: #1f1f2a;
-    }
-
+    /* ===== RATING ===== */
     #leaderboard div {
-      padding: 8px;
+      padding: 10px;
       border-bottom: 1px solid #2a2a33;
+      text-align: left;
     }
 
-    .void-card {
-  background: radial-gradient(circle at top, #1a1a25, #0b0b0f);
-  border-radius: 24px;
-  padding: 30px 20px;
-  box-shadow:
-    0 0 40px rgba(111, 66, 193, 0.25),
-    inset 0 0 30px rgba(0,0,0,0.8);
-  margin-top: 20px;
-}
+    /* ===== TABBAR ===== */
+    #tabbar {
+      position: fixed;
+      bottom: 12px;
+      left: 12px;
+      right: 12px;
+      height: 64px;
+      background: rgba(20,20,30,0.6);
+      backdrop-filter: blur(14px);
+      border-radius: 20px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      z-index: 10;
+    }
 
-.void-orb {
-  width: 140px;
-  height: 140px;
-  margin: 0 auto 20px;
-  border-radius: 50%;
-  background: radial-gradient(circle, #7b4dff, #2a124f, #000);
-  box-shadow:
-    0 0 30px rgba(123,77,255,0.8),
-    0 0 80px rgba(123,77,255,0.4);
-  animation: pulse 3s infinite ease-in-out;
-  <div class="void-orb">
-  <span class="drip"></span>
-  <span class="drip"></span>
-  <span class="drip"></span>
-</div>
+    .tab {
+      flex: 1;
+      text-align: center;
+      color: #888;
+      font-size: 12px;
+      transition: all 0.25s ease;
+      position: relative;
+      cursor: pointer;
+    }
 
-}
+    .tab-icon {
+      font-size: 20px;
+      line-height: 1;
+    }
 
-@keyframes pulse {
-  0% { transform: scale(1); opacity: 0.85; }
-  50% { transform: scale(1.08); opacity: 1; }
-  100% { transform: scale(1); opacity: 0.85; }
-}
+    .tab-label {
+      margin-top: 4px;
+    }
 
-.void-amount {
-  font-size: 32px;
-  font-weight: bold;
-  margin-bottom: 6px;
-}
+    .tab.active {
+      color: #cbb6ff;
+    }
 
-.void-sub {
-  font-size: 14px;
-  opacity: 0.7;
-  margin-bottom: 20px;
-}
-
-.void-btn {
-  background: linear-gradient(135deg, #6f42c1, #8a63ff);
-  box-shadow: 0 0 20px rgba(138,99,255,0.6);
-  font-weight: bold;
-}
-
-.void-info {
-  margin-top: 15px;
-  font-size: 15px;
-  opacity: 0.85;
-}
-
-      #tabbar {
-  <div id="tabbar">
-
-  <div class="tab active" onclick="showTab('game', this)">
-    <div class="tab-icon">◉</div>
-    <div class="tab-label">Игра</div>
-  </div>
-
-  <div class="tab" onclick="showTab('rating', this)">
-    <div class="tab-icon">🏆</div>
-    <div class="tab-label">Рейтинг</div>
-  </div>
-
-</div>
-
-        #tabbar {
-  position: fixed;
-  bottom: 12px;
-  left: 12px;
-  right: 12px;
-  height: 64px;
-  background: rgba(20,20,30,0.6);
-  backdrop-filter: blur(14px);
-  border-radius: 20px;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  border: 1px solid rgba(255,255,255,0.08);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-}
-
-.tab {
-  flex: 1;
-  text-align: center;
-  color: #888;
-  font-size: 12px;
-  transition: all 0.25s ease;
-}
-
-.tab-icon {
-  font-size: 20px;
-  line-height: 1;
-}
-
-.tab-label {
-  margin-top: 4px;
-}
-
-.tab.active {
-  color: #cbb6ff;
-}
-
-.tab.active::before {
-  content: "";
-  position: absolute;
-  width: 48px;
-  height: 48px;
-  background: rgba(140,100,255,0.15);
-  border-radius: 14px;
-  z-index: -1;
-  filter: blur(6px);
-}
-
-}
-
-.tab {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: #777;
-  font-size: 12px;
-  cursor: pointer;
-  transition: all 0.25s ease;
-}
-
-.tab .icon {
-  font-size: 20px;
-  margin-bottom: 4px;
-}
-
-.tab.active {
-  color: #c9b8ff;
-}
-
-.tab.active .icon {
-  text-shadow:
-    0 0 8px rgba(138,99,255,0.8),
-    0 0 16px rgba(138,99,255,0.5);
-}
-
- .void-orb {
-  position: relative;
-  overflow: hidden;
-}
-
-.drip {
-  position: absolute;
-  top: 60%;
-  left: 50%;
-  width: 6px;
-  height: 30px;
-  background: linear-gradient(
-    to bottom,
-    rgba(140,100,255,0.9),
-    rgba(140,100,255,0.2),
-    transparent
-  );
-  border-radius: 50%;
-  filter: blur(1px);
-  animation: drip 4s infinite ease-in-out;
-  opacity: 0.6;
-}
-
-.drip:nth-child(1) {
-  left: 40%;
-  animation-delay: 0s;
-}
-.drip:nth-child(2) {
-  left: 55%;
-  animation-delay: 1.5s;
-}
-.drip:nth-child(3) {
-  left: 65%;
-  animation-delay: 3s;
-}
-
-@keyframes drip {
-  0% {
-    transform: translateY(0) scaleY(0.3);
-    opacity: 0;
-  }
-  20% {
-    opacity: 0.8;
-  }
-  60% {
-    transform: translateY(40px) scaleY(1);
-    opacity: 0.6;
-  }
-  100% {
-    transform: translateY(80px) scaleY(0.2);
-    opacity: 0;
-  }
-}
-   
+    .tab.active::before {
+      content: "";
+      position: absolute;
+      inset: -6px;
+      background: rgba(140,100,255,0.15);
+      border-radius: 16px;
+      filter: blur(8px);
+      z-index: -1;
+    }
   </style>
 </head>
 
@@ -287,22 +182,20 @@
 
 <!-- GAME -->
 <div id="game">
-
   <div class="void-card">
-    <div class="void-orb"></div>
+    <div class="void-orb">
+      <span class="drip"></span>
+      <span class="drip"></span>
+      <span class="drip"></span>
+    </div>
 
-    <div class="void-amount" id="counter">0 VOID</div>
+    <div class="void-amount" id="counter">VOID: 0</div>
     <div class="void-sub">Тёмная энергия конденсируется</div>
 
-    <button class="void-btn" onclick="collect()">
-      Извлечь VOID
-    </button>
-
+    <button class="void-btn" onclick="collect()">Извлечь VOID</button>
     <div class="void-info" id="info"></div>
   </div>
-
 </div>
-
 
 <!-- RATING -->
 <div id="rating" style="display:none">
@@ -310,114 +203,68 @@
   <div id="leaderboard"></div>
 </div>
 
-<!-- TABS -->
-<div id="tabs">
-  <button id="tab-game" class="active" onclick="showTab('game')">🎮 Игра</button>
-  <button id="tab-rating" onclick="showTab('rating')">🏆 Рейтинг</button>
+<!-- TABBAR -->
+<div id="tabbar">
+  <div class="tab active" onclick="showTab('game', this)">
+    <div class="tab-icon">◉</div>
+    <div class="tab-label">Игра</div>
+  </div>
+  <div class="tab" onclick="showTab('rating', this)">
+    <div class="tab-icon">🏆</div>
+    <div class="tab-label">Рейтинг</div>
+  </div>
 </div>
 
-<!-- SUPABASE INIT -->
 <script>
   const SUPABASE_URL = "https://edosyzmykmoajecmaamu.supabase.co";
   const SUPABASE_KEY = "sb_publishable_bHorYMm55LbnpSXg96WwVw_C4weLD_O";
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  const supabase = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-  );
-</script>
-
-<!-- GAME LOGIC -->
-<script>
   const tg = Telegram.WebApp;
   const user = tg.initDataUnsafe?.user;
-
-  if (!user) {
-    alert("Открой приложение через Telegram");
-  }
-
   tg.ready();
 
-  let data = {
-    voids: 0,
-    rate: 1,
-    is_vip: false,
-    lastTime: Date.now()
-  };
+  let data = { voids: 0, rate: 1, is_vip: false, lastTime: Date.now() };
 
   function updateIdle() {
     const now = Date.now();
     const seconds = Math.floor((now - data.lastTime) / 1000);
     if (seconds > 0) {
-      const vipMultiplier = data.is_vip ? 2 : 1;
-      data.voids += seconds * data.rate * vipMultiplier;
+      const mult = data.is_vip ? 2 : 1;
+      data.voids += seconds * data.rate * mult;
       data.lastTime = now;
     }
   }
 
   function render() {
-    document.getElementById("counter").innerText =
-      `VOID: ${Math.floor(data.voids)}`;
+    document.getElementById("counter").innerText = `VOID: ${Math.floor(data.voids)}`;
     document.getElementById("info").innerText =
       `Скорость: ${data.rate} VOID/сек ${data.is_vip ? "👑 VIP" : ""}`;
   }
 
   function collect() {
-   if (navigator.vibrate) {
-  navigator.vibrate(20);
-}
-
-Telegram.WebApp.HapticFeedback.impactOccurred("light");
-
+    Telegram.WebApp.HapticFeedback.impactOccurred("light");
     updateIdle();
     render();
-    savePlayerToServer();
+    savePlayer();
   }
 
-  function upgrade() {
-    if (data.voids >= 10) {
-      data.voids -= 10;
-      data.rate++;
-      render();
-      savePlayerToServer();
-    } else {
-      alert("Недостаточно VOID");
-    }
-  }
-
-  async function loadPlayerFromServer() {
-    const telegramId = user.id;
-
-    let { data: player } = await supabase
-      .from("players")
-      .select("*")
-      .eq("telegram_id", telegramId)
-      .single();
-
-    if (!player) {
-      await supabase.from("players").insert({
-        telegram_id: telegramId,
-        voids: 0,
-        rate: 1,
-        is_vip: false
-      });
-
+  async function loadPlayer() {
+    const { data: p } = await supabase.from("players").select("*").eq("telegram_id", user.id).single();
+    if (!p) {
+      await supabase.from("players").insert({ telegram_id: user.id, voids: 0, rate: 1, is_vip: false });
       return { voids: 0, rate: 1, is_vip: false };
     }
-
-    return player;
+    return p;
   }
 
-  async function savePlayerToServer() {
-    await supabase
-      .from("players")
-      .update({
-        voids: Math.floor(data.voids),
-        rate: data.rate,
-        is_vip: data.is_vip,
-        updated_at: new Date()
-      })
-      .eq("telegram_id", user.id);
+  async function savePlayer() {
+    await supabase.from("players").update({
+      voids: Math.floor(data.voids),
+      rate: data.rate,
+      is_vip: data.is_vip,
+      updated_at: new Date()
+    }).eq("telegram_id", user.id);
   }
 
   async function loadLeaderboard() {
@@ -432,48 +279,28 @@ Telegram.WebApp.HapticFeedback.impactOccurred("light");
 
     list.forEach((p, i) => {
       const row = document.createElement("div");
-      const isMe = p.telegram_id === user.id;
-
-      row.innerText =
-        `${i + 1}. ${isMe ? "🔥 Ты" : "Игрок"} ${p.is_vip ? "👑" : ""} — ${p.voids} VOID`;
-
-      row.style.color = isMe ? "#ffd700" : "#fff";
-      row.style.fontWeight = isMe ? "bold" : "normal";
-
+      row.innerText = `${i + 1}. ${p.telegram_id === user.id ? "🔥 Ты" : "Игрок"} ${p.is_vip ? "👑" : ""} — ${p.voids} VOID`;
       board.appendChild(row);
     });
   }
 
   function showTab(tab, el) {
-  document.getElementById("game").style.display =
-    tab === "game" ? "block" : "none";
-
-  document.getElementById("rating").style.display =
-    tab === "rating" ? "block" : "none";
-
-  document.querySelectorAll(".tab").forEach(t =>
-    t.classList.remove("active")
-  );
-
-  el.classList.add("active");
-
-  if (tab === "rating") {
-    loadLeaderboard();
+    document.getElementById("game").style.display = tab === "game" ? "block" : "none";
+    document.getElementById("rating").style.display = tab === "rating" ? "block" : "none";
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    el.classList.add("active");
+    if (tab === "rating") loadLeaderboard();
   }
-}
 
   (async () => {
-    const serverData = await loadPlayerFromServer();
-
-    data.voids = serverData.voids;
-    data.rate = serverData.rate;
-    data.is_vip = serverData.is_vip;
+    const p = await loadPlayer();
+    data.voids = p.voids;
+    data.rate = p.rate;
+    data.is_vip = p.is_vip;
     data.lastTime = Date.now();
-
     render();
     loadLeaderboard();
-
-    setInterval(savePlayerToServer, 15000);
+    setInterval(savePlayer, 15000);
     setInterval(loadLeaderboard, 20000);
   })();
 </script>
