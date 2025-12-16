@@ -94,6 +94,12 @@
     0 0 30px rgba(123,77,255,0.8),
     0 0 80px rgba(123,77,255,0.4);
   animation: pulse 3s infinite ease-in-out;
+  <div class="void-orb">
+  <span class="drip"></span>
+  <span class="drip"></span>
+  <span class="drip"></span>
+</div>
+
 }
 
 @keyframes pulse {
@@ -127,15 +133,68 @@
 }
 
       #tabbar {
+  <div id="tabbar">
+
+  <div class="tab active" onclick="showTab('game', this)">
+    <div class="tab-icon">◉</div>
+    <div class="tab-label">Игра</div>
+  </div>
+
+  <div class="tab" onclick="showTab('rating', this)">
+    <div class="tab-icon">🏆</div>
+    <div class="tab-label">Рейтинг</div>
+  </div>
+
+</div>
+
+        #tabbar {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  bottom: 12px;
+  left: 12px;
+  right: 12px;
   height: 64px;
-  background: linear-gradient(180deg, #0e0e14, #09090d);
-  border-top: 1px solid #1f1f2a;
+  background: rgba(20,20,30,0.6);
+  backdrop-filter: blur(14px);
+  border-radius: 20px;
   display: flex;
-  z-index: 10;
+  justify-content: space-around;
+  align-items: center;
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+}
+
+.tab {
+  flex: 1;
+  text-align: center;
+  color: #888;
+  font-size: 12px;
+  transition: all 0.25s ease;
+}
+
+.tab-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.tab-label {
+  margin-top: 4px;
+}
+
+.tab.active {
+  color: #cbb6ff;
+}
+
+.tab.active::before {
+  content: "";
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  background: rgba(140,100,255,0.15);
+  border-radius: 14px;
+  z-index: -1;
+  filter: blur(6px);
+}
+
 }
 
 .tab {
@@ -165,6 +224,60 @@
     0 0 16px rgba(138,99,255,0.5);
 }
 
+ .void-orb {
+  position: relative;
+  overflow: hidden;
+}
+
+.drip {
+  position: absolute;
+  top: 60%;
+  left: 50%;
+  width: 6px;
+  height: 30px;
+  background: linear-gradient(
+    to bottom,
+    rgba(140,100,255,0.9),
+    rgba(140,100,255,0.2),
+    transparent
+  );
+  border-radius: 50%;
+  filter: blur(1px);
+  animation: drip 4s infinite ease-in-out;
+  opacity: 0.6;
+}
+
+.drip:nth-child(1) {
+  left: 40%;
+  animation-delay: 0s;
+}
+.drip:nth-child(2) {
+  left: 55%;
+  animation-delay: 1.5s;
+}
+.drip:nth-child(3) {
+  left: 65%;
+  animation-delay: 3s;
+}
+
+@keyframes drip {
+  0% {
+    transform: translateY(0) scaleY(0.3);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.8;
+  }
+  60% {
+    transform: translateY(40px) scaleY(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(80px) scaleY(0.2);
+    opacity: 0;
+  }
+}
+   
   </style>
 </head>
 
