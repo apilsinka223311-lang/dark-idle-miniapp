@@ -66,6 +66,59 @@
       padding: 8px;
       border-bottom: 1px solid #2a2a33;
     }
+
+    .void-card {
+  background: radial-gradient(circle at top, #1a1a25, #0b0b0f);
+  border-radius: 24px;
+  padding: 30px 20px;
+  box-shadow:
+    0 0 40px rgba(111, 66, 193, 0.25),
+    inset 0 0 30px rgba(0,0,0,0.8);
+  margin-top: 20px;
+}
+
+.void-orb {
+  width: 140px;
+  height: 140px;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #7b4dff, #2a124f, #000);
+  box-shadow:
+    0 0 30px rgba(123,77,255,0.8),
+    0 0 80px rgba(123,77,255,0.4);
+  animation: pulse 3s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 0.85; }
+  50% { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.85; }
+}
+
+.void-amount {
+  font-size: 32px;
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.void-sub {
+  font-size: 14px;
+  opacity: 0.7;
+  margin-bottom: 20px;
+}
+
+.void-btn {
+  background: linear-gradient(135deg, #6f42c1, #8a63ff);
+  box-shadow: 0 0 20px rgba(138,99,255,0.6);
+  font-weight: bold;
+}
+
+.void-info {
+  margin-top: 15px;
+  font-size: 15px;
+  opacity: 0.85;
+}
+
   </style>
 </head>
 
@@ -75,12 +128,22 @@
 
 <!-- GAME -->
 <div id="game">
-  <p id="counter">VOID: 0</p>
-  <p id="info"></p>
 
-  <button onclick="collect()">Забрать VOID</button>
-  <button onclick="upgrade()">Улучшить добычу</button>
+  <div class="void-card">
+    <div class="void-orb"></div>
+
+    <div class="void-amount" id="counter">0 VOID</div>
+    <div class="void-sub">Тёмная энергия конденсируется</div>
+
+    <button class="void-btn" onclick="collect()">
+      Извлечь VOID
+    </button>
+
+    <div class="void-info" id="info"></div>
+  </div>
+
 </div>
+
 
 <!-- RATING -->
 <div id="rating" style="display:none">
@@ -141,6 +204,12 @@
   }
 
   function collect() {
+   if (navigator.vibrate) {
+  navigator.vibrate(20);
+}
+
+Telegram.WebApp.HapticFeedback.impactOccurred("light");
+
     updateIdle();
     render();
     savePlayerToServer();
