@@ -223,6 +223,7 @@ h1 {
 
     <button class="void-btn" onclick="collect()">Извлечь VOID</button>
     <div class="void-info" id="info"></div>
+    <button class="void-btn" onclick="upgrade()">Улучшить добычу (+1 VOID/сек)</button>
   </div>
 </div>
 
@@ -265,9 +266,14 @@ function updateIdle() {
 }
 
 function render() {
-  document.getElementById("counter").innerText = `VOID: ${Math.floor(data.voids)}`;
+  const cost = 20 * data.rate * data.rate;
+
+  document.getElementById("counter").innerText =
+    `VOID: ${Math.floor(data.voids)}`;
+
   document.getElementById("info").innerText =
-    `Скорость: ${data.rate} VOID/сек ${data.is_vip ? "👑 VIP" : ""}`;
+    `Скорость: ${data.rate} VOID/сек ${data.is_vip ? "👑 VIP" : ""}\n` +
+    `Цена улучшения: ${cost} VOID`;
 }
 
 function collect() {
@@ -278,6 +284,21 @@ function collect() {
   setTimeout(() => ring.classList.remove("active"), 400);
 
   updateIdle();
+  render();
+  savePlayer();
+}
+
+  function upgrade() {
+  const cost = 20 * data.rate * data.rate;
+
+  if (data.voids < cost) {
+    Telegram.WebApp.showAlert("Недостаточно VOID");
+    return;
+  }
+
+  data.voids -= cost;
+  data.rate += 1;
+
   render();
   savePlayer();
 }
