@@ -1,334 +1,231 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <title>Dark Idle</title>
+<meta charset="UTF-8" />
+<title>Dark Idle</title>
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <style>
-    body {
-      background: #0e0e11;
-      color: #ffffff;
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 20px;
-      margin: 0;
-      padding-bottom: 100px;
-    }
+<style>
+body {
+  background: radial-gradient(circle at top, #14141c, #050507);
+  color: #fff;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont;
+  margin: 0;
+  padding: 20px;
+  padding-bottom: 100px;
+  text-align: center;
+}
 
-    h1 {
-      font-size: 26px;
-      margin-bottom: 16px;
-    }
+/* ===== VOID CARD ===== */
+.void-card {
+  background: rgba(20,20,30,0.6);
+  backdrop-filter: blur(14px);
+  border-radius: 26px;
+  padding: 30px 20px;
+  box-shadow:
+    0 0 50px rgba(120,90,255,0.25),
+    inset 0 0 40px rgba(0,0,0,0.9);
+}
 
-    /* ===== VOID CARD ===== */
-    .void-card {
-      background: radial-gradient(circle at top, #1a1a25, #0b0b0f);
-      border-radius: 24px;
-      padding: 30px 20px;
-      box-shadow:
-        0 0 40px rgba(111, 66, 193, 0.25),
-        inset 0 0 30px rgba(0,0,0,0.8);
-      margin-top: 20px;
-    }
+/* ===== VOID RING ===== */
+.void-ring {
+  margin: 20px auto 30px;
+  width: 200px;
+  height: 200px;
+  position: relative;
+}
 
-    .void-orb {
-      position: relative;
-      width: 140px;
-      height: 140px;
-      margin: 0 auto 20px;
-      border-radius: 50%;
-      background: radial-gradient(circle, #7b4dff, #2a124f, #000);
-      box-shadow:
-        0 0 30px rgba(123,77,255,0.8),
-        0 0 80px rgba(123,77,255,0.4);
-      animation: pulse 3s infinite ease-in-out;
-      overflow: hidden;
-    }
+.void-ring svg {
+  width: 100%;
+  height: 100%;
+}
 
-    @keyframes pulse {
-      0% { transform: scale(1); opacity: 0.85; }
-      50% { transform: scale(1.08); opacity: 1; }
-      100% { transform: scale(1); opacity: 0.85; }
-    }
+.ring-spin {
+  transform-origin: 50% 50%;
+  animation: rotate 20s linear infinite;
+  transition: filter 0.3s, transform 0.3s;
+}
 
-    .drip {
+.void-ring.active .ring-spin {
+  filter: brightness(1.4);
+  animation-duration: 6s;
+}
+
+/* ===== PARTICLES ===== */
+.particle {
   position: absolute;
-  top: 70%;
-  width: 2px;
-  height: 60px;
-  background: linear-gradient(
-    to bottom,
-    rgba(150,120,255,0.9),
-    rgba(150,120,255,0.4),
-    transparent
-  );
+  width: 4px;
+  height: 4px;
+  background: #9f8cff;
   border-radius: 50%;
-  filter: blur(0.5px);
-  transform-origin: top;
-  animation: tendril 6s infinite ease-in-out;
-  opacity: 0.8;
+  opacity: 0.7;
+  animation: orbit 12s linear infinite;
 }
 
-.drip:nth-child(1) {
-  left: 45%;
-  animation-delay: 0s;
-}
-.drip:nth-child(2) {
-  left: 55%;
-  animation-delay: 2s;
-}
-.drip:nth-child(3) {
-  left: 60%;
-  animation-delay: 4s;
+.particle:nth-child(1) { top: 10%; left: 50%; animation-duration: 10s; }
+.particle:nth-child(2) { top: 50%; left: 90%; animation-duration: 14s; }
+.particle:nth-child(3) { top: 90%; left: 50%; animation-duration: 18s; }
+.particle:nth-child(4) { top: 50%; left: 10%; animation-duration: 22s; }
+
+@keyframes orbit {
+  from { transform: rotate(0deg) translateX(90px) rotate(0deg); }
+  to   { transform: rotate(360deg) translateX(90px) rotate(-360deg); }
 }
 
-@keyframes tendril {
-  0% {
-    transform: scaleY(0) translateX(0);
-    opacity: 0;
-  }
-  20% {
-    opacity: 0.9;
-  }
-  50% {
-    transform: scaleY(1) translateX(-2px);
-    opacity: 0.8;
-  }
-  80% {
-    transform: scaleY(1.2) translateX(2px);
-    opacity: 0.4;
-  }
-  100% {
-    transform: scaleY(0);
-    opacity: 0;
-  }
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }
 
+/* ===== TEXT ===== */
+.void-amount {
+  font-size: 34px;
+  font-weight: 700;
+}
 
-    .void-amount {
-      font-size: 32px;
-      font-weight: bold;
-      margin-bottom: 6px;
-    }
+.void-sub {
+  font-size: 14px;
+  opacity: 0.7;
+  margin-bottom: 20px;
+}
 
-    .void-sub {
-      font-size: 14px;
-      opacity: 0.7;
-      margin-bottom: 20px;
-    }
+button {
+  background: linear-gradient(135deg, #6f42c1, #9f8cff);
+  border: none;
+  padding: 16px;
+  font-size: 16px;
+  border-radius: 16px;
+  color: #fff;
+  width: 100%;
+  max-width: 320px;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(159,140,255,0.6);
+}
 
-    .void-btn {
-      background: linear-gradient(135deg, #6f42c1, #8a63ff);
-      box-shadow: 0 0 20px rgba(138,99,255,0.6);
-      border: none;
-      padding: 16px;
-      color: white;
-      font-size: 16px;
-      border-radius: 14px;
-      cursor: pointer;
-      width: 100%;
-      max-width: 320px;
-      margin: 10px auto;
-    }
+.void-info {
+  margin-top: 14px;
+  font-size: 15px;
+  opacity: 0.85;
+}
 
-    .void-info {
-      margin-top: 15px;
-      font-size: 15px;
-      opacity: 0.85;
-    }
+/* ===== TABBAR ===== */
+#tabbar {
+  position: fixed;
+  bottom: 14px;
+  left: 14px;
+  right: 14px;
+  height: 64px;
+  background: rgba(20,20,30,0.6);
+  backdrop-filter: blur(14px);
+  border-radius: 20px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+}
 
-    /* ===== RATING ===== */
-    #leaderboard div {
-      padding: 10px;
-      border-bottom: 1px solid #2a2a33;
-      text-align: left;
-    }
+.tab {
+  flex: 1;
+  color: #888;
+  font-size: 12px;
+  text-align: center;
+}
 
-    /* ===== TABBAR ===== */
-    #tabbar {
-      position: fixed;
-      bottom: 12px;
-      left: 12px;
-      right: 12px;
-      height: 64px;
-      background: rgba(20,20,30,0.6);
-      backdrop-filter: blur(14px);
-      border-radius: 20px;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      border: 1px solid rgba(255,255,255,0.08);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-      z-index: 10;
-    }
-
-    .tab {
-      flex: 1;
-      text-align: center;
-      color: #888;
-      font-size: 12px;
-      transition: all 0.25s ease;
-      position: relative;
-      cursor: pointer;
-    }
-
-    .tab-icon {
-      font-size: 20px;
-      line-height: 1;
-    }
-
-    .tab-label {
-      margin-top: 4px;
-    }
-
-    .tab.active {
-      color: #cbb6ff;
-    }
-
-    .tab.active::before {
-      content: "";
-      position: absolute;
-      inset: -6px;
-      background: rgba(140,100,255,0.15);
-      border-radius: 16px;
-      filter: blur(8px);
-      z-index: -1;
-    }
-  </style>
+.tab.active {
+  color: #cbb6ff;
+}
+</style>
 </head>
 
 <body>
 
 <h1>Dark Idle</h1>
 
-<!-- GAME -->
 <div id="game">
   <div class="void-card">
-    <div class="void-orb">
-      <span class="drip"></span>
-      <span class="drip"></span>
-      <span class="drip"></span>
+
+    <div class="void-ring" id="voidRing" onclick="collect()">
+      <svg viewBox="0 0 200 200">
+        <defs>
+          <radialGradient id="ringGlow">
+            <stop offset="55%" stop-color="#000"/>
+            <stop offset="70%" stop-color="#6f42c1"/>
+            <stop offset="85%" stop-color="#9f8cff"/>
+            <stop offset="100%" stop-color="transparent"/>
+          </radialGradient>
+
+          <filter id="noise">
+            <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2"/>
+            <feDisplacementMap in="SourceGraphic" scale="8"/>
+          </filter>
+        </defs>
+
+        <circle cx="100" cy="100" r="52" fill="#000"/>
+        <circle cx="100" cy="100" r="72"
+          fill="url(#ringGlow)"
+          filter="url(#noise)"
+          class="ring-spin"/>
+      </svg>
+
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
     </div>
 
     <div class="void-amount" id="counter">VOID: 0</div>
-    <div class="void-sub">Тёмная энергия конденсируется</div>
+    <div class="void-sub">Тьма смотрит в ответ</div>
 
-    <button class="void-btn" onclick="collect()">Извлечь VOID</button>
+    <button onclick="collect()">Извлечь VOID</button>
     <div class="void-info" id="info"></div>
-  </div>
-</div>
 
-<!-- RATING -->
-<div id="rating" style="display:none">
-  <h2>🏆 Топ игроков</h2>
-  <div id="leaderboard"></div>
-</div>
-
-<!-- TABBAR -->
-<div id="tabbar">
-  <div class="tab active" onclick="showTab('game', this)">
-    <div class="tab-icon">◉</div>
-    <div class="tab-label">Игра</div>
-  </div>
-  <div class="tab" onclick="showTab('rating', this)">
-    <div class="tab-icon">🏆</div>
-    <div class="tab-label">Рейтинг</div>
   </div>
 </div>
 
 <script>
-  const SUPABASE_URL = "https://edosyzmykmoajecmaamu.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_bHorYMm55LbnpSXg96WwVw_C4weLD_O";
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const tg = Telegram.WebApp;
+tg.ready();
 
-  const tg = Telegram.WebApp;
-  const user = tg.initDataUnsafe?.user;
-  tg.ready();
+let data = {
+  voids: 0,
+  rate: 1,
+  is_vip: true,
+  lastTime: Date.now()
+};
 
-  let data = { voids: 0, rate: 1, is_vip: false, lastTime: Date.now() };
-
-  function updateIdle() {
-    const now = Date.now();
-    const seconds = Math.floor((now - data.lastTime) / 1000);
-    if (seconds > 0) {
-      const mult = data.is_vip ? 2 : 1;
-      data.voids += seconds * data.rate * mult;
-      data.lastTime = now;
-    }
+function updateIdle() {
+  const now = Date.now();
+  const seconds = Math.floor((now - data.lastTime) / 1000);
+  if (seconds > 0) {
+    data.voids += seconds * data.rate * (data.is_vip ? 2 : 1);
+    data.lastTime = now;
   }
+}
 
-  function render() {
-    document.getElementById("counter").innerText = `VOID: ${Math.floor(data.voids)}`;
-    document.getElementById("info").innerText =
-      `Скорость: ${data.rate} VOID/сек ${data.is_vip ? "👑 VIP" : ""}`;
-  }
+function render() {
+  document.getElementById("counter").innerText = `VOID: ${Math.floor(data.voids)}`;
+  document.getElementById("info").innerText =
+    `Скорость: ${data.rate} VOID/сек ${data.is_vip ? "👑 VIP" : ""}`;
+}
 
-  function collect() {
-    Telegram.WebApp.HapticFeedback.impactOccurred("light");
-    updateIdle();
-    render();
-    savePlayer();
-  }
+function collect() {
+  Telegram.WebApp.HapticFeedback.impactOccurred("light");
 
-  async function loadPlayer() {
-    const { data: p } = await supabase.from("players").select("*").eq("telegram_id", user.id).single();
-    if (!p) {
-      await supabase.from("players").insert({ telegram_id: user.id, voids: 0, rate: 1, is_vip: false });
-      return { voids: 0, rate: 1, is_vip: false };
-    }
-    return p;
-  }
+  const ring = document.getElementById("voidRing");
+  ring.classList.add("active");
 
-  async function savePlayer() {
-    await supabase.from("players").update({
-      voids: Math.floor(data.voids),
-      rate: data.rate,
-      is_vip: data.is_vip,
-      updated_at: new Date()
-    }).eq("telegram_id", user.id);
-  }
+  setTimeout(() => ring.classList.remove("active"), 400);
 
-  async function loadLeaderboard() {
-    const { data: list } = await supabase
-      .from("players")
-      .select("telegram_id, voids, is_vip")
-      .order("voids", { ascending: false })
-      .limit(100);
+  updateIdle();
+  render();
+}
 
-    const board = document.getElementById("leaderboard");
-    board.innerHTML = "";
-
-    list.forEach((p, i) => {
-      const row = document.createElement("div");
-      row.innerText = `${i + 1}. ${p.telegram_id === user.id ? "🔥 Ты" : "Игрок"} ${p.is_vip ? "👑" : ""} — ${p.voids} VOID`;
-      board.appendChild(row);
-    });
-  }
-
-  function showTab(tab, el) {
-    document.getElementById("game").style.display = tab === "game" ? "block" : "none";
-    document.getElementById("rating").style.display = tab === "rating" ? "block" : "none";
-    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-    el.classList.add("active");
-    if (tab === "rating") loadLeaderboard();
-  }
-
-  (async () => {
-    const p = await loadPlayer();
-    data.voids = p.voids;
-    data.rate = p.rate;
-    data.is_vip = p.is_vip;
-    data.lastTime = Date.now();
-    render();
-    loadLeaderboard();
-    setInterval(savePlayer, 15000);
-    setInterval(loadLeaderboard, 20000);
-  })();
+render();
 </script>
 
 </body>
