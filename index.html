@@ -40,13 +40,20 @@
     }
 
     #tabs {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: #14141a;
-      display: flex;
-      border-top: 1px solid #2a2a33;
+    <div id="tabbar">
+
+  <div class="tab active" onclick="showTab('game', this)">
+    <div class="icon">◉</div>
+    <div class="label">VOID</div>
+  </div>
+
+  <div class="tab" onclick="showTab('rating', this)">
+    <div class="icon">⟁</div>
+    <div class="label">Ранг</div>
+  </div>
+
+</div>
+
     }
 
     #tabs button {
@@ -117,6 +124,45 @@
   margin-top: 15px;
   font-size: 15px;
   opacity: 0.85;
+}
+
+      #tabbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background: linear-gradient(180deg, #0e0e14, #09090d);
+  border-top: 1px solid #1f1f2a;
+  display: flex;
+  z-index: 10;
+}
+
+.tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #777;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.tab .icon {
+  font-size: 20px;
+  margin-bottom: 4px;
+}
+
+.tab.active {
+  color: #c9b8ff;
+}
+
+.tab.active .icon {
+  text-shadow:
+    0 0 8px rgba(138,99,255,0.8),
+    0 0 16px rgba(138,99,255,0.5);
 }
 
   </style>
@@ -285,19 +331,23 @@ Telegram.WebApp.HapticFeedback.impactOccurred("light");
     });
   }
 
-  function showTab(tab) {
-    document.getElementById("game").style.display =
-      tab === "game" ? "block" : "none";
-    document.getElementById("rating").style.display =
-      tab === "rating" ? "block" : "none";
+  function showTab(tab, el) {
+  document.getElementById("game").style.display =
+    tab === "game" ? "block" : "none";
 
-    document.getElementById("tab-game").classList.toggle("active", tab === "game");
-    document.getElementById("tab-rating").classList.toggle("active", tab === "rating");
+  document.getElementById("rating").style.display =
+    tab === "rating" ? "block" : "none";
 
-    if (tab === "rating") {
-      loadLeaderboard();
-    }
+  document.querySelectorAll(".tab").forEach(t =>
+    t.classList.remove("active")
+  );
+
+  el.classList.add("active");
+
+  if (tab === "rating") {
+    loadLeaderboard();
   }
+}
 
   (async () => {
     const serverData = await loadPlayerFromServer();
