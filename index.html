@@ -178,6 +178,15 @@ h1 {
   filter: blur(8px);
   z-index: -1;
 }
+
+  #voidCanvas {
+  width: 180px;
+  height: 180px;
+  margin: 0 auto 20px;
+  display: block;
+  border-radius: 50%;
+}
+  
 </style>
 </head>
 
@@ -189,34 +198,7 @@ h1 {
 <div id="game">
   <div class="void-card">
 
-    <div class="void-ring" id="voidRing" onclick="collect()">
-      <svg viewBox="0 0 200 200">
-        <defs>
-          <radialGradient id="ringGlow">
-            <stop offset="55%" stop-color="#000"/>
-            <stop offset="70%" stop-color="#6f42c1"/>
-            <stop offset="85%" stop-color="#9f8cff"/>
-            <stop offset="100%" stop-color="transparent"/>
-          </radialGradient>
-
-          <filter id="noise">
-            <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2"/>
-            <feDisplacementMap in="SourceGraphic" scale="8"/>
-          </filter>
-        </defs>
-
-        <circle cx="100" cy="100" r="52" fill="#000"/>
-        <circle cx="100" cy="100" r="72"
-          fill="url(#ringGlow)"
-          filter="url(#noise)"
-          class="ring"/>
-      </svg>
-
-      <div class="particle p1"></div>
-      <div class="particle p2"></div>
-      <div class="particle p3"></div>
-      <div class="particle p4"></div>
-    </div>
+   <canvas id="voidCanvas" width="400" height="400"></canvas>
 
     <div class="void-amount" id="counter">VOID: 0</div>
     <div class="void-sub">Тёмная энергия искажает пространство</div>
@@ -256,6 +238,8 @@ tg.ready();
 
 let data = { voids: 0, rate: 1, is_vip: false, lastTime: Date.now() };
 
+/* ================= GAME LOGIC ================= */
+
 function updateIdle() {
   const now = Date.now();
   const seconds = Math.floor((now - data.lastTime) / 1000);
@@ -279,16 +263,14 @@ function render() {
 function collect() {
   Telegram.WebApp.HapticFeedback.impactOccurred("light");
 
-  const ring = document.getElementById("voidRing");
-  ring.classList.add("active");
-  setTimeout(() => ring.classList.remove("active"), 400);
+  pulse = 1; // реакция Canvas
 
   updateIdle();
   render();
   savePlayer();
 }
 
-  function upgrade() {
+function upgrade() {
   const cost = 20 * data.rate * data.rate;
 
   if (data.voids < cost) {
@@ -302,6 +284,8 @@ function collect() {
   render();
   savePlayer();
 }
+
+/* ================= SERVER ================= */
 
 async function loadPlayer() {
   const { data: p } = await supabase
@@ -357,18 +341,94 @@ function showTab(tab, el) {
   if (tab === "rating") loadLeaderboard();
 }
 
+/* ================= INIT ================= */
+
 (async () => {
   const p = await loadPlayer();
   data.voids = p.voids;
   data.rate = p.rate;
   data.is_vip = p.is_vip;
   data.lastTime = Date.now();
+
   render();
   loadLeaderboard();
+
   setInterval(savePlayer, 15000);
   setInterval(loadLeaderboard, 20000);
 })();
+
+/* ================= CANVAS VOID ================= */
+
+const canvas = document.getElementById("voidCanvas");
+const ctx = canvas.getContext("2d");
+
+const DPR = window.devicePixelRatio || 1;
+const SIZE = 180;
+
+canvas.width = SIZE * DPR;
+canvas.height = SIZE * DPR;
+canvas.style.width = SIZE + "px";
+canvas.style.height = SIZE + "px";
+
+ctx.scale(DPR, DPR);
+
+let time = 0;
+let pulse = 0;
+
+canvas.addEventListener("click", () => {
+  pulse = 1;
+  collect();
+});
+
+function drawVoid() {
+  const w = SIZE;
+  const h = SIZE;
+  const cx = w / 2;
+  const cy = h / 2;
+  const baseRadius = 58;
+
+  ctx.clearRect(0, 0, w, h);
+
+  // ПУСТОТА
+  ctx.beginPath();
+  ctx.arc(cx, cy, baseRadius, 0, Math.PI * 2);
+  ctx.fillStyle = "#000";
+  ctx.fill();
+
+  // ЭНЕРГЕТИЧЕСКОЕ КОЛЬЦО
+  const dots = 140;
+  for (let i = 0; i < dots; i++) {
+    const angle = (i / dots) * Math.PI * 2;
+    const noise =
+      Math.sin(time * 0.02 + angle * 4) * (5 + data.rate * 0.6);
+
+    const r = baseRadius + 14 + noise;
+    const x = cx + Math.cos(angle) * r;
+    const y = cy + Math.sin(angle) * r;
+
+    ctx.fillStyle = "rgba(160,130,255,0.28)";
+    ctx.beginPath();
+    ctx.arc(x, y, 2.2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // ВСПЛЕСК
+  if (pulse > 0.01) {
+    ctx.strokeStyle = `rgba(200,170,255,${pulse})`;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(cx, cy, baseRadius + 18 * pulse, 0, Math.PI * 2);
+    ctx.stroke();
+    pulse *= 0.9;
+  }
+
+  time++;
+  requestAnimationFrame(drawVoid);
+}
+
+drawVoid();
 </script>
+
 
 </body>
 </html>
