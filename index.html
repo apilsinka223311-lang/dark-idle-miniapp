@@ -385,41 +385,66 @@ function drawVoid() {
   const h = SIZE;
   const cx = w / 2;
   const cy = h / 2;
-  const baseRadius = 58;
+
+  const baseRadius = 56;
+  const rotation = time * 0.002; // медленное вращение
 
   ctx.clearRect(0, 0, w, h);
 
-  // ПУСТОТА
+  // ===== ЦЕНТРАЛЬНАЯ ПУСТОТА =====
   ctx.beginPath();
-  ctx.arc(cx, cy, baseRadius, 0, Math.PI * 2);
+  ctx.arc(cx, cy, baseRadius - pulse * 6, 0, Math.PI * 2);
   ctx.fillStyle = "#000";
   ctx.fill();
 
-  // ЭНЕРГЕТИЧЕСКОЕ КОЛЬЦО
-  const dots = 140;
-  for (let i = 0; i < dots; i++) {
-    const angle = (i / dots) * Math.PI * 2;
-    const noise =
-      Math.sin(time * 0.02 + angle * 4) * (5 + data.rate * 0.6);
+  // ===== РВАНЫЙ КРАЙ + ГРАВИТАЦИЯ =====
+  const points = 180;
 
-    const r = baseRadius + 14 + noise;
+  for (let i = 0; i < points; i++) {
+    const angle =
+      (i / points) * Math.PI * 2 +
+      rotation +
+      Math.sin(time * 0.01 + i) * 0.15;
+
+    // рваная форма
+    const distortion =
+      Math.sin(angle * 3 + time * 0.03) * 6 +
+      Math.sin(angle * 7 - time * 0.02) * 4;
+
+    // гравитационное втягивание
+    const gravity = Math.max(0, Math.sin(time * 0.02 + i)) * 6;
+
+    const r =
+      baseRadius +
+      14 +
+      distortion -
+      gravity -
+      pulse * 10;
+
     const x = cx + Math.cos(angle) * r;
     const y = cy + Math.sin(angle) * r;
 
-    ctx.fillStyle = "rgba(160,130,255,0.28)";
+    ctx.fillStyle = "rgba(170,140,255,0.22)";
     ctx.beginPath();
-    ctx.arc(x, y, 2.2, 0, Math.PI * 2);
+    ctx.arc(x, y, 2.1, 0, Math.PI * 2);
     ctx.fill();
   }
 
-  // ВСПЛЕСК
+  // ===== КОЛЛАПС ПРИ НАЖАТИИ =====
   if (pulse > 0.01) {
-    ctx.strokeStyle = `rgba(200,170,255,${pulse})`;
-    ctx.lineWidth = 3;
+    ctx.strokeStyle = `rgba(210,180,255,${pulse})`;
+    ctx.lineWidth = 2.5;
     ctx.beginPath();
-    ctx.arc(cx, cy, baseRadius + 18 * pulse, 0, Math.PI * 2);
+    ctx.arc(
+      cx,
+      cy,
+      baseRadius + 20 - pulse * 18,
+      0,
+      Math.PI * 2
+    );
     ctx.stroke();
-    pulse *= 0.9;
+
+    pulse *= 0.88;
   }
 
   time++;
