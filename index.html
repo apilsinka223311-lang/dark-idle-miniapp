@@ -321,12 +321,13 @@ async function loadPlayer() {
     .single();
 
   if (!p) {
-    await supabase.from("players").insert({
-      telegram_id: user.id,
-      voids: 0,
-      rate: 1,
-      is_vip: false
-    });
+   await supabase.from("players").insert({
+  telegram_id: user.id,
+  username: user.username || user.first_name || "Unknown",
+  voids: 0,
+  rate: 1,
+  is_vip: false
+});
     return { voids: 0, rate: 1, is_vip: false };
   }
   return p;
