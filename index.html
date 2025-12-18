@@ -25,7 +25,7 @@ h1 {
   margin-bottom: 16px;
 }
 
-/* ===== VOID CARD ===== */
+/* ===== CARD ===== */
 .void-card {
   background: radial-gradient(circle at top, #1a1a25, #0b0b0f);
   border-radius: 24px;
@@ -36,9 +36,8 @@ h1 {
   margin-top: 20px;
 }
 
-/* ===== VOID ART + CANVAS ===== */
+/* ===== VOID IMAGE ===== */
 .void-orb {
-  position: relative;
   width: 260px;
   height: 260px;
   margin: 0 auto 20px;
@@ -47,8 +46,6 @@ h1 {
 }
 
 #voidImage {
-  position: absolute;
-  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -56,18 +53,12 @@ h1 {
     drop-shadow(0 0 60px rgba(160,130,255,0.75))
     brightness(1.15)
     contrast(1.1);
-  animation: voidRotate 60s linear infinite;
+  animation: rotateVoid 60s linear infinite;
 }
 
-@keyframes voidRotate {
+@keyframes rotateVoid {
   from { transform: rotate(0deg) scale(1.05); }
   to   { transform: rotate(360deg) scale(1.05); }
-}
-
-#voidCanvas {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
 }
 
 /* ===== TEXT ===== */
@@ -101,6 +92,13 @@ h1 {
   margin-top: 15px;
   font-size: 15px;
   opacity: 0.85;
+}
+
+/* ===== RATING ===== */
+#leaderboard div {
+  padding: 10px;
+  border-bottom: 1px solid #2a2a33;
+  text-align: left;
 }
 
 /* ===== TABBAR ===== */
@@ -139,25 +137,34 @@ h1 {
 
 <h1>Dark Idle</h1>
 
-<div class="void-card">
+<!-- GAME -->
+<div id="game">
+  <div class="void-card">
 
-  <div class="void-orb">
-    <img src="void.png" id="voidImage">
-    <canvas id="voidCanvas"></canvas>
+    <div class="void-orb">
+      <img src="void.png" id="voidImage">
+    </div>
+
+    <div class="void-amount" id="counter">VOID: 0</div>
+    <div class="void-sub">Тёмная энергия конденсируется</div>
+
+    <button class="void-btn" onclick="collect()">Извлечь VOID</button>
+    <div class="void-info" id="info"></div>
+    <button class="void-btn" onclick="upgrade()">Улучшить добычу</button>
+
   </div>
-
-  <div class="void-amount" id="counter">VOID: 0</div>
-  <div class="void-sub">Тёмная энергия искажает пространство</div>
-
-  <button class="void-btn" onclick="collect()">Извлечь VOID</button>
-  <div class="void-info" id="info"></div>
-  <button class="void-btn" onclick="upgrade()">Улучшить добычу (+1 VOID/сек)</button>
-
 </div>
 
+<!-- RATING -->
+<div id="rating" style="display:none">
+  <h2>🏆 Топ игроков</h2>
+  <div id="leaderboard"></div>
+</div>
+
+<!-- TABBAR -->
 <div id="tabbar">
-  <div class="tab active">◉ Игра</div>
-  <div class="tab">🏆 Рейтинг</div>
+  <div class="tab active" onclick="showTab('game', this)">◉ Игра</div>
+  <div class="tab" onclick="showTab('rating', this)">🏆 Рейтинг</div>
 </div>
 
 <script>
@@ -168,9 +175,14 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 /* ===== TELEGRAM ===== */
 const tg = Telegram.WebApp;
+const user = tg.initDataUnsafe?.user;
 tg.ready();
 
-/* ===== GAME DATA ===== */
+if (!user) {
+  alert("Открой мини-приложение через Telegram");
+}
+
+/* ===== DATA ===== */
 let data = {
   voids: 0,
   rate: 1,
@@ -198,9 +210,9 @@ function render() {
 
 function collect() {
   Telegram.WebApp.HapticFeedback.impactOccurred("light");
-  pulse = 1;
   updateIdle();
   render();
+  savePlayer();
 }
 
 function upgrade() {
@@ -212,65 +224,75 @@ function upgrade() {
   data.voids -= cost;
   data.rate++;
   render();
+  savePlayer();
 }
 
-/* ===== CANVAS VOID ===== */
-const canvas = document.getElementById("voidCanvas");
-const ctx = canvas.getContext("2d");
+/* ===== SERVER ===== */
+async function loadPlayer() {
+  const { data: p } = await supabase
+    .from("players")
+    .select("*")
+    .eq("telegram_id", user.id)
+    .single();
 
-const SIZE = 260;
-const DPR = window.devicePixelRatio || 1;
-
-canvas.width = SIZE * DPR;
-canvas.height = SIZE * DPR;
-canvas.style.width = SIZE + "px";
-canvas.style.height = SIZE + "px";
-ctx.scale(DPR, DPR);
-
-let time = 0;
-let pulse = 0;
-
-function drawVoid() {
-  const cx = SIZE / 2;
-  const cy = SIZE / 2;
-  const baseRadius = 86;
-
-  ctx.clearRect(0, 0, SIZE, SIZE);
-
-  const points = 220;
-
-  for (let i = 0; i < points; i++) {
-    const angle = (i / points) * Math.PI * 2 + time * 0.002;
-    const distortion =
-      Math.sin(angle * 4 + time * 0.03) * 8 +
-      Math.sin(angle * 9 - time * 0.02) * 5;
-
-    const r = baseRadius + 22 + distortion - pulse * 10;
-
-    const x = cx + Math.cos(angle) * r;
-    const y = cy + Math.sin(angle) * r;
-
-    ctx.fillStyle = "rgba(180,150,255,0.28)";
-    ctx.beginPath();
-    ctx.arc(x, y, 2.2, 0, Math.PI * 2);
-    ctx.fill();
+  if (!p) {
+    await supabase.from("players").insert({
+      telegram_id: user.id,
+      voids: 0,
+      rate: 1,
+      is_vip: false
+    });
+    return { voids: 0, rate: 1, is_vip: false };
   }
-
-  if (pulse > 0.01) {
-    ctx.strokeStyle = `rgba(220,190,255,${pulse})`;
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.arc(cx, cy, baseRadius + 30 - pulse * 20, 0, Math.PI * 2);
-    ctx.stroke();
-    pulse *= 0.88;
-  }
-
-  time++;
-  requestAnimationFrame(drawVoid);
+  return p;
 }
 
-drawVoid();
-render();
+async function savePlayer() {
+  await supabase.from("players").update({
+    voids: Math.floor(data.voids),
+    rate: data.rate,
+    is_vip: data.is_vip,
+    updated_at: new Date()
+  }).eq("telegram_id", user.id);
+}
+
+async function loadLeaderboard() {
+  const { data: list } = await supabase
+    .from("players")
+    .select("telegram_id, voids, is_vip")
+    .order("voids", { ascending: false })
+    .limit(100);
+
+  leaderboard.innerHTML = "";
+  list.forEach((p, i) => {
+    const row = document.createElement("div");
+    row.innerText =
+      `${i + 1}. ${p.telegram_id === user.id ? "🔥 Ты" : "Игрок"} ${p.is_vip ? "👑" : ""} — ${p.voids} VOID`;
+    leaderboard.appendChild(row);
+  });
+}
+
+/* ===== TABS ===== */
+function showTab(tab, el) {
+  game.style.display = tab === "game" ? "block" : "none";
+  rating.style.display = tab === "rating" ? "block" : "none";
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  el.classList.add("active");
+  if (tab === "rating") loadLeaderboard();
+}
+
+/* ===== INIT ===== */
+(async () => {
+  const p = await loadPlayer();
+  data.voids = p.voids;
+  data.rate = p.rate;
+  data.is_vip = p.is_vip;
+  data.lastTime = Date.now();
+  render();
+  loadLeaderboard();
+  setInterval(savePlayer, 15000);
+  setInterval(loadLeaderboard, 20000);
+})();
 </script>
 
 </body>
