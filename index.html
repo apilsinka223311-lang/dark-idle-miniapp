@@ -130,6 +130,83 @@ h1 {
 .tab.active {
   color: #cbb6ff;
 }
+
+  /* ===== RATING ===== */
+
+.rating-card {
+  background: linear-gradient(180deg, #141420, #0b0b12);
+  border-radius: 22px;
+  padding: 20px;
+  box-shadow: 0 0 40px rgba(120,90,255,0.15);
+}
+
+.rating-title {
+  margin-bottom: 16px;
+  font-size: 22px;
+}
+
+/* TOP 3 */
+.top3 {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.top3-item {
+  flex: 1;
+  padding: 12px;
+  border-radius: 16px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.top3-item.gold {
+  background: linear-gradient(135deg, #ffd70033, #000);
+  color: #ffd700;
+}
+
+.top3-item.silver {
+  background: linear-gradient(135deg, #c0c0c033, #000);
+  color: #ddd;
+}
+
+.top3-item.bronze {
+  background: linear-gradient(135deg, #cd7f3233, #000);
+  color: #cd7f32;
+}
+
+/* LIST */
+.leaderboard {
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.lb-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 12px;
+  margin-bottom: 6px;
+  background: rgba(255,255,255,0.04);
+  font-size: 14px;
+}
+
+.lb-row.me {
+  background: rgba(140,100,255,0.2);
+  color: #fff;
+  font-weight: bold;
+}
+
+/* MY RANK */
+.my-rank {
+  margin-top: 14px;
+  padding: 14px;
+  border-radius: 16px;
+  background: rgba(140,100,255,0.18);
+  font-size: 15px;
+  box-shadow: 0 0 20px rgba(140,100,255,0.25);
+}
+
 </style>
 </head>
 
@@ -157,14 +234,22 @@ h1 {
 
 <!-- RATING -->
 <div id="rating" style="display:none">
-  <h2>🏆 Топ игроков</h2>
-  <div id="leaderboard"></div>
-</div>
 
-<!-- TABBAR -->
-<div id="tabbar">
-  <div class="tab active" onclick="showTab('game', this)">◉ Игра</div>
-  <div class="tab" onclick="showTab('rating', this)">🏆 Рейтинг</div>
+  <div class="rating-card">
+
+    <h2 class="rating-title">🏆 Рейтинг VOID</h2>
+
+    <!-- TOP 3 -->
+    <div id="top3" class="top3"></div>
+
+    <!-- LIST -->
+    <div id="leaderboard" class="leaderboard"></div>
+
+  </div>
+
+  <!-- YOUR POSITION -->
+  <div id="my-rank" class="my-rank"></div>
+
 </div>
 
 <script>
@@ -247,30 +332,69 @@ async function loadPlayer() {
   return p;
 }
 
-async function savePlayer() {
-  await supabase.from("players").update({
-    voids: Math.floor(data.voids),
-    rate: data.rate,
-    is_vip: data.is_vip,
-    updated_at: new Date()
-  }).eq("telegram_id", user.id);
-}
-
 async function loadLeaderboard() {
-  const { data: list } = await supabase
+  const { data: list, error } = await supabase
     .from("players")
-    .select("telegram_id, voids, is_vip")
+    .select("telegram_id, voids, is_vip, username")
     .order("voids", { ascending: false })
     .limit(100);
 
-  leaderboard.innerHTML = "";
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  const top3 = document.getElementById("top3");
+  const board = document.getElementById("leaderboard");
+  const myRankBox = document.getElementById("my-rank");
+
+  top3.innerHTML = "";
+  board.innerHTML = "";
+  myRankBox.innerHTML = "";
+
+  let myIndex = -1;
+
   list.forEach((p, i) => {
-    const row = document.createElement("div");
-    row.innerText =
-      `${i + 1}. ${p.telegram_id === user.id ? "🔥 Ты" : "Игрок"} ${p.is_vip ? "👑" : ""} — ${p.voids} VOID`;
-    leaderboard.appendChild(row);
+    if (p.telegram_id === user.id) myIndex = i;
   });
+
+  // TOP 3
+  const medals = ["gold", "silver", "bronze"];
+
+  list.slice(0, 3).forEach((p, i) => {
+    const div = document.createElement("div");
+    div.className = `top3-item ${medals[i]}`;
+    div.innerHTML = `
+      <div>${i + 1} место</div>
+      <strong>${p.username || "Игрок"}</strong>
+      <div>${p.voids} VOID ${p.is_vip ? "👑" : ""}</div>
+    `;
+    top3.appendChild(div);
+  });
+
+  // LIST (4–100)
+  list.slice(3).forEach((p, i) => {
+    const row = document.createElement("div");
+    row.className = "lb-row";
+
+    if (p.telegram_id === user.id) row.classList.add("me");
+
+    row.innerHTML = `
+      <span>${i + 4}. ${p.username || "Игрок"} ${p.is_vip ? "👑" : ""}</span>
+      <span>${p.voids} VOID</span>
+    `;
+    board.appendChild(row);
+  });
+
+  // MY POSITION
+  if (myIndex !== -1) {
+    myRankBox.innerHTML = `
+      🔥 Твоя позиция: <strong>${myIndex + 1}</strong><br>
+      VOID: <strong>${list[myIndex].voids}</strong>
+    `;
+  }
 }
+
 
 /* ===== TABS ===== */
 function showTab(tab, el) {
