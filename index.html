@@ -320,16 +320,32 @@ async function loadPlayer() {
     .eq("telegram_id", user.id)
     .single();
 
+  // если игрока нет — создаём
   if (!p) {
-   await supabase.from("players").insert({
-  telegram_id: user.id,
-  username: user.username || user.first_name || "Unknown",
-  voids: 0,
-  rate: 1,
-  is_vip: false
-});
-    return { voids: 0, rate: 1, is_vip: false };
+    const newPlayer = {
+      telegram_id: user.id,
+      username: user.username || user.first_name || "Unknown",
+      voids: 0,
+      rate: 1,
+      is_vip: false
+    };
+
+    await supabase.from("players").insert(newPlayer);
+    return newPlayer;
   }
+
+  // 🔥 ЕСЛИ ИГРОК ЕСТЬ, НО НИКА НЕТ — ОБНОВЛЯЕМ
+  if (!p.username) {
+    await supabase
+      .from("players")
+      .update({
+        username: user.username || user.first_name || "Unknown"
+      })
+      .eq("telegram_id", user.id);
+
+    p.username = user.username || user.first_name || "Unknown";
+  }
+
   return p;
 }
 
