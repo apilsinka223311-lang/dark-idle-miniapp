@@ -36,57 +36,38 @@ h1 {
   margin-top: 20px;
 }
 
-/* ===== VOID RING ===== */
-.void-ring {
+/* ===== VOID ART + CANVAS ===== */
+.void-orb {
   position: relative;
-  width: 180px;
-  height: 180px;
+  width: 260px;
+  height: 260px;
   margin: 0 auto 20px;
-  cursor: pointer;
+  border-radius: 50%;
+  overflow: hidden;
 }
 
-.void-ring svg {
+#voidImage {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
+  object-fit: cover;
+  filter:
+    drop-shadow(0 0 60px rgba(160,130,255,0.75))
+    brightness(1.15)
+    contrast(1.1);
+  animation: voidRotate 60s linear infinite;
 }
 
-.ring {
-  transform-origin: 50% 50%;
-  animation: rotate 22s linear infinite;
-  transition: filter 0.3s, animation-duration 0.3s;
+@keyframes voidRotate {
+  from { transform: rotate(0deg) scale(1.05); }
+  to   { transform: rotate(360deg) scale(1.05); }
 }
 
-.void-ring.active .ring {
-  animation-duration: 6s;
-  filter: brightness(1.4);
-}
-
-/* ===== PARTICLES ===== */
-.particle {
+#voidCanvas {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 4px;
-  height: 4px;
-  background: #9f8cff;
-  border-radius: 50%;
-  opacity: 0.7;
-  animation: orbit 14s linear infinite;
-}
-
-.p1 { animation-duration: 10s; }
-.p2 { animation-duration: 14s; }
-.p3 { animation-duration: 18s; }
-.p4 { animation-duration: 22s; }
-
-@keyframes orbit {
-  from { transform: rotate(0deg) translateX(80px) rotate(0deg); }
-  to   { transform: rotate(360deg) translateX(80px) rotate(-360deg); }
-}
-
-@keyframes rotate {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
+  inset: 0;
+  pointer-events: none;
 }
 
 /* ===== TEXT ===== */
@@ -122,13 +103,6 @@ h1 {
   opacity: 0.85;
 }
 
-/* ===== RATING ===== */
-#leaderboard div {
-  padding: 10px;
-  border-bottom: 1px solid #2a2a33;
-  text-align: left;
-}
-
 /* ===== TABBAR ===== */
 #tabbar {
   position: fixed;
@@ -152,41 +126,12 @@ h1 {
   text-align: center;
   color: #888;
   font-size: 12px;
-  transition: all 0.25s ease;
-  position: relative;
   cursor: pointer;
-}
-
-.tab-icon {
-  font-size: 20px;
-}
-
-.tab-label {
-  margin-top: 4px;
 }
 
 .tab.active {
   color: #cbb6ff;
 }
-
-.tab.active::before {
-  content: "";
-  position: absolute;
-  inset: -6px;
-  background: rgba(140,100,255,0.15);
-  border-radius: 16px;
-  filter: blur(8px);
-  z-index: -1;
-}
-
-  #voidCanvas {
-  width: 180px;
-  height: 180px;
-  margin: 0 auto 20px;
-  display: block;
-  border-radius: 50%;
-}
-  
 </style>
 </head>
 
@@ -194,52 +139,46 @@ h1 {
 
 <h1>Dark Idle</h1>
 
-<!-- GAME -->
-<div id="game">
-  <div class="void-card">
+<div class="void-card">
 
-   <canvas id="voidCanvas" width="400" height="400"></canvas>
-
-    <div class="void-amount" id="counter">VOID: 0</div>
-    <div class="void-sub">Тёмная энергия искажает пространство</div>
-
-    <button class="void-btn" onclick="collect()">Извлечь VOID</button>
-    <div class="void-info" id="info"></div>
-    <button class="void-btn" onclick="upgrade()">Улучшить добычу (+1 VOID/сек)</button>
+  <div class="void-orb">
+    <img src="void.png" id="voidImage">
+    <canvas id="voidCanvas"></canvas>
   </div>
+
+  <div class="void-amount" id="counter">VOID: 0</div>
+  <div class="void-sub">Тёмная энергия искажает пространство</div>
+
+  <button class="void-btn" onclick="collect()">Извлечь VOID</button>
+  <div class="void-info" id="info"></div>
+  <button class="void-btn" onclick="upgrade()">Улучшить добычу (+1 VOID/сек)</button>
+
 </div>
 
-<!-- RATING -->
-<div id="rating" style="display:none">
-  <h2>🏆 Топ игроков</h2>
-  <div id="leaderboard"></div>
-</div>
-
-<!-- TABBAR -->
 <div id="tabbar">
-  <div class="tab active" onclick="showTab('game', this)">
-    <div class="tab-icon">◉</div>
-    <div class="tab-label">Игра</div>
-  </div>
-  <div class="tab" onclick="showTab('rating', this)">
-    <div class="tab-icon">🏆</div>
-    <div class="tab-label">Рейтинг</div>
-  </div>
+  <div class="tab active">◉ Игра</div>
+  <div class="tab">🏆 Рейтинг</div>
 </div>
 
 <script>
+/* ===== SUPABASE ===== */
 const SUPABASE_URL = "https://edosyzmykmoajecmaamu.supabase.co";
 const SUPABASE_KEY = "sb_publishable_bHorYMm55LbnpSXg96WwVw_C4weLD_O";
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+/* ===== TELEGRAM ===== */
 const tg = Telegram.WebApp;
-const user = tg.initDataUnsafe?.user;
 tg.ready();
 
-let data = { voids: 0, rate: 1, is_vip: false, lastTime: Date.now() };
+/* ===== GAME DATA ===== */
+let data = {
+  voids: 0,
+  rate: 1,
+  is_vip: false,
+  lastTime: Date.now()
+};
 
-/* ================= GAME LOGIC ================= */
-
+/* ===== GAME LOGIC ===== */
 function updateIdle() {
   const now = Date.now();
   const seconds = Math.floor((now - data.lastTime) / 1000);
@@ -251,199 +190,78 @@ function updateIdle() {
 
 function render() {
   const cost = 20 * data.rate * data.rate;
-
-  document.getElementById("counter").innerText =
-    `VOID: ${Math.floor(data.voids)}`;
-
-  document.getElementById("info").innerText =
+  counter.innerText = `VOID: ${Math.floor(data.voids)}`;
+  info.innerText =
     `Скорость: ${data.rate} VOID/сек ${data.is_vip ? "👑 VIP" : ""}\n` +
     `Цена улучшения: ${cost} VOID`;
 }
 
 function collect() {
   Telegram.WebApp.HapticFeedback.impactOccurred("light");
-
-  pulse = 1; // реакция Canvas
-
+  pulse = 1;
   updateIdle();
   render();
-  savePlayer();
 }
 
 function upgrade() {
   const cost = 20 * data.rate * data.rate;
-
   if (data.voids < cost) {
     Telegram.WebApp.showAlert("Недостаточно VOID");
     return;
   }
-
   data.voids -= cost;
-  data.rate += 1;
-
+  data.rate++;
   render();
-  savePlayer();
 }
 
-/* ================= SERVER ================= */
-
-async function loadPlayer() {
-  const { data: p } = await supabase
-    .from("players")
-    .select("*")
-    .eq("telegram_id", user.id)
-    .single();
-
-  if (!p) {
-    await supabase.from("players").insert({
-      telegram_id: user.id,
-      voids: 0,
-      rate: 1,
-      is_vip: false
-    });
-    return { voids: 0, rate: 1, is_vip: false };
-  }
-  return p;
-}
-
-async function savePlayer() {
-  await supabase.from("players").update({
-    voids: Math.floor(data.voids),
-    rate: data.rate,
-    is_vip: data.is_vip,
-    updated_at: new Date()
-  }).eq("telegram_id", user.id);
-}
-
-async function loadLeaderboard() {
-  const { data: list } = await supabase
-    .from("players")
-    .select("telegram_id, voids, is_vip")
-    .order("voids", { ascending: false })
-    .limit(100);
-
-  const board = document.getElementById("leaderboard");
-  board.innerHTML = "";
-
-  list.forEach((p, i) => {
-    const row = document.createElement("div");
-    row.innerText =
-      `${i + 1}. ${p.telegram_id === user.id ? "🔥 Ты" : "Игрок"} ${p.is_vip ? "👑" : ""} — ${p.voids} VOID`;
-    board.appendChild(row);
-  });
-}
-
-function showTab(tab, el) {
-  document.getElementById("game").style.display = tab === "game" ? "block" : "none";
-  document.getElementById("rating").style.display = tab === "rating" ? "block" : "none";
-  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-  el.classList.add("active");
-  if (tab === "rating") loadLeaderboard();
-}
-
-/* ================= INIT ================= */
-
-(async () => {
-  const p = await loadPlayer();
-  data.voids = p.voids;
-  data.rate = p.rate;
-  data.is_vip = p.is_vip;
-  data.lastTime = Date.now();
-
-  render();
-  loadLeaderboard();
-
-  setInterval(savePlayer, 15000);
-  setInterval(loadLeaderboard, 20000);
-})();
-
-/* ================= CANVAS VOID ================= */
-
+/* ===== CANVAS VOID ===== */
 const canvas = document.getElementById("voidCanvas");
 const ctx = canvas.getContext("2d");
 
+const SIZE = 260;
 const DPR = window.devicePixelRatio || 1;
-const SIZE = 180;
 
 canvas.width = SIZE * DPR;
 canvas.height = SIZE * DPR;
 canvas.style.width = SIZE + "px";
 canvas.style.height = SIZE + "px";
-
 ctx.scale(DPR, DPR);
 
 let time = 0;
 let pulse = 0;
 
-canvas.addEventListener("click", () => {
-  pulse = 1;
-  collect();
-});
-
 function drawVoid() {
-  const w = SIZE;
-  const h = SIZE;
-  const cx = w / 2;
-  const cy = h / 2;
+  const cx = SIZE / 2;
+  const cy = SIZE / 2;
+  const baseRadius = 86;
 
-  const baseRadius = 56;
-  const rotation = time * 0.002; // медленное вращение
+  ctx.clearRect(0, 0, SIZE, SIZE);
 
-  ctx.clearRect(0, 0, w, h);
-
-  // ===== ЦЕНТРАЛЬНАЯ ПУСТОТА =====
-  ctx.beginPath();
-  ctx.arc(cx, cy, baseRadius - pulse * 6, 0, Math.PI * 2);
-  ctx.fillStyle = "#000";
-  ctx.fill();
-
-  // ===== РВАНЫЙ КРАЙ + ГРАВИТАЦИЯ =====
-  const points = 180;
+  const points = 220;
 
   for (let i = 0; i < points; i++) {
-    const angle =
-      (i / points) * Math.PI * 2 +
-      rotation +
-      Math.sin(time * 0.01 + i) * 0.15;
-
-    // рваная форма
+    const angle = (i / points) * Math.PI * 2 + time * 0.002;
     const distortion =
-      Math.sin(angle * 3 + time * 0.03) * 6 +
-      Math.sin(angle * 7 - time * 0.02) * 4;
+      Math.sin(angle * 4 + time * 0.03) * 8 +
+      Math.sin(angle * 9 - time * 0.02) * 5;
 
-    // гравитационное втягивание
-    const gravity = Math.max(0, Math.sin(time * 0.02 + i)) * 6;
-
-    const r =
-      baseRadius +
-      14 +
-      distortion -
-      gravity -
-      pulse * 10;
+    const r = baseRadius + 22 + distortion - pulse * 10;
 
     const x = cx + Math.cos(angle) * r;
     const y = cy + Math.sin(angle) * r;
 
-    ctx.fillStyle = "rgba(170,140,255,0.22)";
+    ctx.fillStyle = "rgba(180,150,255,0.28)";
     ctx.beginPath();
-    ctx.arc(x, y, 2.1, 0, Math.PI * 2);
+    ctx.arc(x, y, 2.2, 0, Math.PI * 2);
     ctx.fill();
   }
 
-  // ===== КОЛЛАПС ПРИ НАЖАТИИ =====
   if (pulse > 0.01) {
-    ctx.strokeStyle = `rgba(210,180,255,${pulse})`;
-    ctx.lineWidth = 2.5;
+    ctx.strokeStyle = `rgba(220,190,255,${pulse})`;
+    ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.arc(
-      cx,
-      cy,
-      baseRadius + 20 - pulse * 18,
-      0,
-      Math.PI * 2
-    );
+    ctx.arc(cx, cy, baseRadius + 30 - pulse * 20, 0, Math.PI * 2);
     ctx.stroke();
-
     pulse *= 0.88;
   }
 
@@ -452,8 +270,8 @@ function drawVoid() {
 }
 
 drawVoid();
+render();
 </script>
-
 
 </body>
 </html>
