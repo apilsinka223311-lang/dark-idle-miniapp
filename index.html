@@ -323,6 +323,12 @@ function upgrade() {
 }
 
 /* ===== SERVER ===== */
+  function getUsername() {
+  if (user?.username) return "@" + user.username;
+  if (user?.first_name) return user.first_name;
+  return "Player_" + user.id;
+}
+  
 async function loadPlayer() {
   const { data: p } = await supabase
     .from("players")
@@ -330,11 +336,11 @@ async function loadPlayer() {
     .eq("telegram_id", user.id)
     .single();
 
-  // если игрока нет — создаём
+  // ЕСЛИ ИГРОКА НЕТ — СОЗДАЁМ
   if (!p) {
     const newPlayer = {
       telegram_id: user.id,
-      username: user.username || user.first_name || "Unknown",
+      username: getUsername(),
       voids: 0,
       rate: 1,
       is_vip: false
@@ -344,16 +350,16 @@ async function loadPlayer() {
     return newPlayer;
   }
 
-  // 🔥 ЕСЛИ ИГРОК ЕСТЬ, НО НИКА НЕТ — ОБНОВЛЯЕМ
+  // ЕСЛИ ЕСТЬ, НО НИК ПУСТОЙ — ЧИНИМ
   if (!p.username) {
+    const name = getUsername();
+
     await supabase
       .from("players")
-      .update({
-        username: user.username || user.first_name || "Unknown"
-      })
+      .update({ username: name })
       .eq("telegram_id", user.id);
 
-    p.username = user.username || user.first_name || "Unknown";
+    p.username = name;
   }
 
   return p;
@@ -435,13 +441,27 @@ function showTab(tab, el) {
 /* ===== INIT ===== */
 (async () => {
   const p = await loadPlayer();
+
   data.voids = p.voids;
   data.rate = p.rate;
   data.is_vip = p.is_vip;
-  data.lastTime = Date.now();
+
+  data.lastTime = p.updated_at
+    ? new Date(p.updated_at).getTime()
+    : Date.now();
+
+  updateIdle();   // 🔥 начисляем offline доход
   render();
+  savePlayer();   // 🔥 сохраняем уже обновлённое
+
   loadLeaderboard();
-  setInterval(savePlayer, 15000);
+
+  setInterval(() => {
+    updateIdle();
+    render();
+    savePlayer();
+  }, 15000);
+
   setInterval(loadLeaderboard, 20000);
 })();
 </script>
