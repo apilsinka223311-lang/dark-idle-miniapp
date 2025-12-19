@@ -11,149 +11,96 @@
 
 <style>
 body {
-  background: #0e0e11;
-  color: #ffffff;
-  font-family: Arial, sans-serif;
-  text-align: center;
-  padding: 20px;
-  margin: 0;
-  padding-bottom: 100px;
+  background:#0e0e11;
+  color:#fff;
+  font-family:Arial,sans-serif;
+  text-align:center;
+  padding:20px;
+  margin:0;
+  padding-bottom:110px;
 }
 
-h1 {
-  font-size: 26px;
-  margin-bottom: 16px;
+h1{font-size:26px;margin-bottom:16px}
+
+.void-card{
+  background:radial-gradient(circle at top,#1a1a25,#0b0b0f);
+  border-radius:24px;
+  padding:30px 20px;
+  box-shadow:0 0 40px rgba(111,66,193,.25),inset 0 0 30px rgba(0,0,0,.8);
 }
 
-/* CARD */
-.void-card {
-  background: radial-gradient(circle at top, #1a1a25, #0b0b0f);
-  border-radius: 24px;
-  padding: 30px 20px;
-  box-shadow: 0 0 40px rgba(111,66,193,0.25), inset 0 0 30px rgba(0,0,0,0.8);
-  margin-top: 20px;
+.void-orb{
+  width:260px;height:260px;
+  margin:0 auto 20px;
+  border-radius:50%;
+  overflow:hidden;
 }
 
-/* VOID IMAGE */
-.void-orb {
-  width: 260px;
-  height: 260px;
-  margin: 0 auto 20px;
-  border-radius: 50%;
-  overflow: hidden;
+#voidImage{
+  width:100%;height:100%;
+  object-fit:cover;
+  filter:drop-shadow(0 0 60px rgba(160,130,255,.75)) brightness(1.15);
+  animation:spin 60s linear infinite;
+}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+
+.void-amount{font-size:32px;font-weight:bold}
+.void-sub{font-size:14px;opacity:.7;margin-bottom:20px}
+
+.void-btn{
+  background:linear-gradient(135deg,#6f42c1,#8a63ff);
+  box-shadow:0 0 20px rgba(138,99,255,.6);
+  border:none;
+  padding:16px;
+  color:#fff;
+  font-size:16px;
+  border-radius:14px;
+  cursor:pointer;
+  width:100%;
+  max-width:320px;
+  margin:10px auto;
 }
 
-#voidImage {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: drop-shadow(0 0 60px rgba(160,130,255,0.75)) brightness(1.15);
-  animation: rotateVoid 60s linear infinite;
-}
+.void-info{font-size:15px;opacity:.85}
 
-@keyframes rotateVoid {
-  from { transform: rotate(0deg) scale(1.05); }
-  to { transform: rotate(360deg) scale(1.05); }
-}
-
-/* TEXT */
-.void-amount {
-  font-size: 32px;
-  font-weight: bold;
-}
-
-.void-sub {
-  font-size: 14px;
-  opacity: 0.7;
-  margin-bottom: 20px;
-}
-
-.void-btn {
-  background: linear-gradient(135deg,#6f42c1,#8a63ff);
-  box-shadow: 0 0 20px rgba(138,99,255,0.6);
-  border: none;
-  padding: 16px;
-  color: white;
-  font-size: 16px;
-  border-radius: 14px;
-  cursor: pointer;
-  width: 100%;
-  max-width: 320px;
-  margin: 10px auto;
-}
-
-.void-info {
-  margin-top: 10px;
-  font-size: 15px;
-  opacity: 0.85;
-}
-
-/* TABBAR */
-#tabbar {
-  position: fixed;
-  bottom: 12px;
-  left: 12px;
-  right: 12px;
-  height: 64px;
-  background: rgba(20,20,30,0.6);
-  backdrop-filter: blur(14px);
-  border-radius: 20px;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  border: 1px solid rgba(255,255,255,0.08);
-}
-
-.tab {
-  flex: 1;
-  color: #888;
-  cursor: pointer;
-}
-
-.tab.active {
-  color: #cbb6ff;
-}
-
-/* RATING */
-.rating-card {
-  background: linear-gradient(180deg,#141420,#0b0b12);
-  border-radius: 22px;
-  padding: 20px;
-}
-
-.top3 {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 16px;
-}
-
-.top3-item {
-  flex: 1;
-  padding: 12px;
-  border-radius: 16px;
-  font-size: 14px;
-}
-
-.gold { color:#ffd700; }
-.silver { color:#ddd; }
-.bronze { color:#cd7f32; }
-
-.leaderboard {
-  max-height: 420px;
-  overflow-y: auto;
-}
-
-.lb-row {
+#tabbar{
+  position:fixed;bottom:12px;left:12px;right:12px;
+  height:64px;
+  background:rgba(20,20,30,.6);
+  backdrop-filter:blur(14px);
+  border-radius:20px;
   display:flex;
-  justify-content:space-between;
-  padding:10px;
-  background:rgba(255,255,255,0.05);
-  border-radius:12px;
+  justify-content:space-around;
+  align-items:center;
+}
+
+.tab{flex:1;color:#888;font-size:12px;cursor:pointer}
+.tab.active{color:#cbb6ff}
+
+.rating-card{
+  background:linear-gradient(180deg,#141420,#0b0b12);
+  border-radius:22px;
+  padding:20px;
+}
+
+.top3{display:flex;gap:10px;margin-bottom:14px}
+.top3-item{flex:1;padding:12px;border-radius:14px;font-size:14px}
+.gold{color:#ffd700}.silver{color:#ddd}.bronze{color:#cd7f32}
+
+.leaderboard{max-height:420px;overflow-y:auto}
+.lb-row{
+  display:flex;justify-content:space-between;
+  padding:10px;border-radius:12px;
+  background:rgba(255,255,255,.04);
   margin-bottom:6px;
 }
+.lb-row.me{background:rgba(140,100,255,.25);font-weight:bold}
 
-.lb-row.me {
-  background:rgba(140,100,255,0.25);
+.my-rank{
+  margin-top:14px;
+  padding:14px;
+  border-radius:16px;
+  background:rgba(140,100,255,.2);
 }
 </style>
 </head>
@@ -164,9 +111,7 @@ h1 {
 
 <div id="game">
   <div class="void-card">
-    <div class="void-orb">
-      <img src="void.png" id="voidImage">
-    </div>
+    <div class="void-orb"><img src="void.png" id="voidImage"></div>
     <div class="void-amount" id="counter">VOID: 0</div>
     <div class="void-sub">Тёмная энергия конденсируется</div>
     <button class="void-btn" onclick="collect()">Извлечь VOID</button>
@@ -181,6 +126,7 @@ h1 {
     <div id="top3" class="top3"></div>
     <div id="leaderboard" class="leaderboard"></div>
   </div>
+  <div id="my-rank" class="my-rank"></div>
 </div>
 
 <div id="tabbar">
@@ -189,81 +135,102 @@ h1 {
 </div>
 
 <script>
-const supabase = supabaseJs.createClient(
+/* ===== INIT ===== */
+const supabase = window.supabase.createClient(
   "https://edosyzmykmoajecmaamu.supabase.co",
   "sb_publishable_bHorYMm55LbnpSXg96WwVw_C4weLD_O"
 );
 
 const tg = Telegram.WebApp;
-const user = tg.initDataUnsafe.user;
 tg.ready();
+const user = tg.initDataUnsafe.user;
 
-let data = { voids:0, rate:1, is_vip:false, lastTime:Date.now() };
+/* ===== STATE ===== */
+let state = {
+  voids:0,
+  rate:1,
+  is_vip:false,
+  last_seen:Date.now()
+};
 
-function getUsername(){
-  return user.username ? "@"+user.username : user.first_name || "Player";
+function username(){
+  if(user.username) return "@"+user.username;
+  if(user.first_name) return user.first_name;
+  return "Player_"+user.id;
 }
 
-function render(){
-  const cost = 20 * data.rate * data.rate;
-  counter.innerText = `VOID: ${Math.floor(data.voids)}`;
-  info.innerText = `Скорость: ${data.rate} VOID/сек\nЦена улучшения: ${cost}`;
-}
-
-function updateIdle(){
-  const now = Date.now();
-  const seconds = Math.floor((now - data.lastTime)/1000);
-  if(seconds>0){
-    data.voids += seconds * data.rate;
-    data.lastTime = now;
-  }
-}
-
-function collect(){
-  updateIdle();
-  render();
-  savePlayer();
-}
-
-function upgrade(){
-  const cost = 20 * data.rate * data.rate;
-  if(data.voids < cost) return;
-  data.voids -= cost;
-  data.rate++;
-  render();
-  savePlayer();
-}
-
-async function savePlayer(){
-  await supabase.from("players").update({
-    voids: Math.floor(data.voids),
-    rate: data.rate,
-    last_seen: new Date(),
-    username: getUsername()
-  }).eq("telegram_id", user.id);
-}
-
+/* ===== LOAD ===== */
 async function loadPlayer(){
-  const {data:p} = await supabase.from("players").select("*").eq("telegram_id",user.id).single();
+  let {data:p} = await supabase
+    .from("players")
+    .select("*")
+    .eq("telegram_id",user.id)
+    .single();
+
   if(!p){
-    await supabase.from("players").insert({
+    p={
       telegram_id:user.id,
-      username:getUsername(),
+      username:username(),
       voids:0,
       rate:1,
       is_vip:false,
       last_seen:new Date()
-    });
-    return;
+    };
+    await supabase.from("players").insert(p);
   }
-  data.voids = p.voids;
-  data.rate = p.rate;
-  data.lastTime = p.last_seen ? new Date(p.last_seen).getTime() : Date.now();
+
+  state.voids=p.voids;
+  state.rate=p.rate;
+  state.is_vip=p.is_vip;
+  state.last_seen=new Date(p.last_seen||Date.now()).getTime();
 }
 
+/* ===== SAVE ===== */
+async function save(){
+  await supabase.from("players").update({
+    voids:Math.floor(state.voids),
+    rate:state.rate,
+    last_seen:new Date(),
+    username:username()
+  }).eq("telegram_id",user.id);
+}
+
+/* ===== GAME ===== */
+function tick(){
+  const now=Date.now();
+  const diff=Math.floor((now-state.last_seen)/1000);
+  if(diff>0){
+    state.voids+=diff*state.rate*(state.is_vip?2:1);
+    state.last_seen=now;
+  }
+}
+
+function render(){
+  counter.innerText=`VOID: ${Math.floor(state.voids)}`;
+  info.innerText=`Скорость: ${state.rate} VOID/сек\nЦена улучшения: ${20*state.rate*state.rate}`;
+}
+
+function collect(){
+  tg.HapticFeedback.impactOccurred("light");
+  state.voids+=1;
+  render();
+  save();
+}
+
+function upgrade(){
+  const cost=20*state.rate*state.rate;
+  if(state.voids<cost){tg.showAlert("Недостаточно VOID");return;}
+  state.voids-=cost;
+  state.rate++;
+  render();
+  save();
+}
+
+/* ===== RATING ===== */
 async function loadLeaderboard(){
-  const {data:list} = await supabase.from("players")
-    .select("telegram_id,username,voids")
+  const {data:list}=await supabase
+    .from("players")
+    .select("telegram_id,username,voids,is_vip")
     .order("voids",{ascending:false})
     .limit(100);
 
@@ -271,31 +238,37 @@ async function loadLeaderboard(){
   leaderboard.innerHTML="";
 
   list.slice(0,3).forEach((p,i)=>{
-    top3.innerHTML += `<div class="top3-item">${i+1}. ${p.username}<br>${p.voids}</div>`;
+    top3.innerHTML+=`<div class="top3-item ${["gold","silver","bronze"][i]}">
+      ${i+1}. ${p.username}<br>${p.voids}
+    </div>`;
   });
 
   list.forEach((p,i)=>{
-    leaderboard.innerHTML += `<div class="lb-row ${p.telegram_id===user.id?'me':''}">
-      <span>${i+1}. ${p.username}</span><span>${p.voids}</span>
-    </div>`;
+    leaderboard.innerHTML+=`
+      <div class="lb-row ${p.telegram_id===user.id?"me":""}">
+        <span>${i+1}. ${p.username}</span>
+        <span>${p.voids}</span>
+      </div>`;
   });
 }
 
+/* ===== UI ===== */
 function showTab(tab,el){
-  game.style.display = tab==="game"?"block":"none";
-  rating.style.display = tab==="rating"?"block":"none";
+  game.style.display=tab==="game"?"block":"none";
+  rating.style.display=tab==="rating"?"block":"none";
   document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
   el.classList.add("active");
   if(tab==="rating") loadLeaderboard();
 }
 
+/* ===== START ===== */
 (async()=>{
   await loadPlayer();
-  updateIdle();
+  tick();
   render();
-  savePlayer();
+  save();
   loadLeaderboard();
-  setInterval(()=>{updateIdle();render();savePlayer();},1000);
+  setInterval(()=>{tick();render();save()},15000);
 })();
 </script>
 
