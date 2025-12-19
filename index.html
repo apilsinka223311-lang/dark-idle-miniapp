@@ -212,7 +212,7 @@ function render(){
 
 function collect(){
   tg.HapticFeedback.impactOccurred("light");
-  state.voids+=1;
+  tick();     // ← считаем ВСЮ накопленную добычу
   render();
   save();
 }
