@@ -3,89 +3,158 @@
 <head>
 <meta charset="UTF-8" />
 <title>Dark Idle</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 body {
-  background:#0e0e11;
-  color:#fff;
-  font-family:Arial,sans-serif;
-  text-align:center;
-  margin:0;
-  padding:20px 20px 120px;
+  background: #0e0e11;
+  color: #ffffff;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  padding: 20px;
+  margin: 0;
+  padding-bottom: 100px;
 }
 
-h1 { font-size:26px; }
+h1 {
+  font-size: 26px;
+  margin-bottom: 16px;
+}
 
+/* CARD */
 .void-card {
-  background:radial-gradient(circle at top,#1a1a25,#0b0b0f);
-  border-radius:24px;
-  padding:30px 20px;
+  background: radial-gradient(circle at top, #1a1a25, #0b0b0f);
+  border-radius: 24px;
+  padding: 30px 20px;
+  box-shadow: 0 0 40px rgba(111,66,193,0.25), inset 0 0 30px rgba(0,0,0,0.8);
+  margin-top: 20px;
 }
 
+/* VOID IMAGE */
 .void-orb {
-  width:260px;
-  height:260px;
-  margin:0 auto 20px;
-  border-radius:50%;
-  overflow:hidden;
+  width: 260px;
+  height: 260px;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  overflow: hidden;
 }
 
 #voidImage {
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  animation:spin 60s linear infinite;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: drop-shadow(0 0 60px rgba(160,130,255,0.75)) brightness(1.15);
+  animation: rotateVoid 60s linear infinite;
 }
 
-@keyframes spin {
-  from {transform:rotate(0deg) scale(1.05);}
-  to {transform:rotate(360deg) scale(1.05);}
+@keyframes rotateVoid {
+  from { transform: rotate(0deg) scale(1.05); }
+  to { transform: rotate(360deg) scale(1.05); }
 }
 
-.void-amount { font-size:32px; font-weight:bold; }
-.void-sub { opacity:.7; margin-bottom:20px; }
+/* TEXT */
+.void-amount {
+  font-size: 32px;
+  font-weight: bold;
+}
+
+.void-sub {
+  font-size: 14px;
+  opacity: 0.7;
+  margin-bottom: 20px;
+}
 
 .void-btn {
-  background:linear-gradient(135deg,#6f42c1,#8a63ff);
-  border:none;
-  padding:16px;
-  color:#fff;
-  border-radius:14px;
-  width:100%;
-  max-width:320px;
-  margin:10px auto;
-  cursor:pointer;
+  background: linear-gradient(135deg,#6f42c1,#8a63ff);
+  box-shadow: 0 0 20px rgba(138,99,255,0.6);
+  border: none;
+  padding: 16px;
+  color: white;
+  font-size: 16px;
+  border-radius: 14px;
+  cursor: pointer;
+  width: 100%;
+  max-width: 320px;
+  margin: 10px auto;
 }
 
+.void-info {
+  margin-top: 10px;
+  font-size: 15px;
+  opacity: 0.85;
+}
+
+/* TABBAR */
 #tabbar {
-  position:fixed;
-  bottom:12px;
-  left:12px;
-  right:12px;
-  height:64px;
-  background:rgba(20,20,30,.6);
-  backdrop-filter:blur(14px);
-  border-radius:20px;
-  display:flex;
+  position: fixed;
+  bottom: 12px;
+  left: 12px;
+  right: 12px;
+  height: 64px;
+  background: rgba(20,20,30,0.6);
+  backdrop-filter: blur(14px);
+  border-radius: 20px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  border: 1px solid rgba(255,255,255,0.08);
 }
 
 .tab {
-  flex:1;
-  color:#888;
-  font-size:12px;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  cursor:pointer;
+  flex: 1;
+  color: #888;
+  cursor: pointer;
 }
 
-.tab.active { color:#cbb6ff; }
+.tab.active {
+  color: #cbb6ff;
+}
 
-#rating { display:none; }
+/* RATING */
+.rating-card {
+  background: linear-gradient(180deg,#141420,#0b0b12);
+  border-radius: 22px;
+  padding: 20px;
+}
+
+.top3 {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.top3-item {
+  flex: 1;
+  padding: 12px;
+  border-radius: 16px;
+  font-size: 14px;
+}
+
+.gold { color:#ffd700; }
+.silver { color:#ddd; }
+.bronze { color:#cd7f32; }
+
+.leaderboard {
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.lb-row {
+  display:flex;
+  justify-content:space-between;
+  padding:10px;
+  background:rgba(255,255,255,0.05);
+  border-radius:12px;
+  margin-bottom:6px;
+}
+
+.lb-row.me {
+  background:rgba(140,100,255,0.25);
+}
 </style>
 </head>
 
@@ -98,19 +167,20 @@ h1 { font-size:26px; }
     <div class="void-orb">
       <img src="void.png" id="voidImage">
     </div>
-
     <div class="void-amount" id="counter">VOID: 0</div>
     <div class="void-sub">Тёмная энергия конденсируется</div>
-
     <button class="void-btn" onclick="collect()">Извлечь VOID</button>
-    <div id="info"></div>
+    <div class="void-info" id="info"></div>
     <button class="void-btn" onclick="upgrade()">Улучшить добычу</button>
   </div>
 </div>
 
-<div id="rating">
-  <h2>🏆 Рейтинг</h2>
-  <div id="leaderboard"></div>
+<div id="rating" style="display:none">
+  <div class="rating-card">
+    <h2>🏆 Рейтинг</h2>
+    <div id="top3" class="top3"></div>
+    <div id="leaderboard" class="leaderboard"></div>
+  </div>
 </div>
 
 <div id="tabbar">
@@ -125,111 +195,107 @@ const supabase = supabaseJs.createClient(
 );
 
 const tg = Telegram.WebApp;
-tg.ready();
 const user = tg.initDataUnsafe.user;
+tg.ready();
 
-let data = { voids:0, rate:1, lastTime:Date.now() };
+let data = { voids:0, rate:1, is_vip:false, lastTime:Date.now() };
 
-function getUsername() {
-  return user.username ? "@"+user.username : user.first_name || "Player_"+user.id;
+function getUsername(){
+  return user.username ? "@"+user.username : user.first_name || "Player";
 }
 
-async function loadPlayer() {
-  let { data:p } = await supabase
-    .from("players")
-    .select("*")
-    .eq("telegram_id", user.id)
-    .single();
-
-  if (!p) {
-    p = {
-      telegram_id:user.id,
-      username:getUsername(),
-      voids:0,
-      rate:1,
-      updated_at:new Date().toISOString()
-    };
-    await supabase.from("players").insert(p);
-  }
-
-  if (!p.username) {
-    p.username = getUsername();
-    await supabase.from("players").update({username:p.username})
-      .eq("telegram_id", user.id);
-  }
-
-  return p;
+function render(){
+  const cost = 20 * data.rate * data.rate;
+  counter.innerText = `VOID: ${Math.floor(data.voids)}`;
+  info.innerText = `Скорость: ${data.rate} VOID/сек\nЦена улучшения: ${cost}`;
 }
 
-async function savePlayer() {
-  await supabase.from("players").update({
-    voids:Math.floor(data.voids),
-    rate:data.rate,
-    updated_at:new Date().toISOString()
-  }).eq("telegram_id", user.id);
-}
-
-function updateIdle() {
+function updateIdle(){
   const now = Date.now();
-  const sec = Math.floor((now - data.lastTime)/1000);
-  if (sec > 0) {
-    data.voids += sec * data.rate;
+  const seconds = Math.floor((now - data.lastTime)/1000);
+  if(seconds>0){
+    data.voids += seconds * data.rate;
     data.lastTime = now;
   }
 }
 
-function render() {
-  counter.innerText = "VOID: " + Math.floor(data.voids);
-  info.innerText = "Скорость: " + data.rate + " VOID/сек";
-}
-
-function collect() {
+function collect(){
   updateIdle();
   render();
   savePlayer();
 }
 
-function upgrade() {
+function upgrade(){
   const cost = 20 * data.rate * data.rate;
-  if (data.voids < cost) return tg.showAlert("Недостаточно VOID");
+  if(data.voids < cost) return;
   data.voids -= cost;
   data.rate++;
   render();
   savePlayer();
 }
 
-async function loadLeaderboard() {
-  const { data:list } = await supabase
-    .from("players")
-    .select("username,voids")
+async function savePlayer(){
+  await supabase.from("players").update({
+    voids: Math.floor(data.voids),
+    rate: data.rate,
+    last_seen: new Date(),
+    username: getUsername()
+  }).eq("telegram_id", user.id);
+}
+
+async function loadPlayer(){
+  const {data:p} = await supabase.from("players").select("*").eq("telegram_id",user.id).single();
+  if(!p){
+    await supabase.from("players").insert({
+      telegram_id:user.id,
+      username:getUsername(),
+      voids:0,
+      rate:1,
+      is_vip:false,
+      last_seen:new Date()
+    });
+    return;
+  }
+  data.voids = p.voids;
+  data.rate = p.rate;
+  data.lastTime = p.last_seen ? new Date(p.last_seen).getTime() : Date.now();
+}
+
+async function loadLeaderboard(){
+  const {data:list} = await supabase.from("players")
+    .select("telegram_id,username,voids")
     .order("voids",{ascending:false})
     .limit(100);
 
-  leaderboard.innerHTML = "";
+  top3.innerHTML="";
+  leaderboard.innerHTML="";
+
+  list.slice(0,3).forEach((p,i)=>{
+    top3.innerHTML += `<div class="top3-item">${i+1}. ${p.username}<br>${p.voids}</div>`;
+  });
+
   list.forEach((p,i)=>{
-    leaderboard.innerHTML += `<div>${i+1}. ${p.username} — ${p.voids}</div>`;
+    leaderboard.innerHTML += `<div class="lb-row ${p.telegram_id===user.id?'me':''}">
+      <span>${i+1}. ${p.username}</span><span>${p.voids}</span>
+    </div>`;
   });
 }
 
-function showTab(tab,el) {
+function showTab(tab,el){
   game.style.display = tab==="game"?"block":"none";
   rating.style.display = tab==="rating"?"block":"none";
   document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
   el.classList.add("active");
-  if (tab==="rating") loadLeaderboard();
+  if(tab==="rating") loadLeaderboard();
 }
 
 (async()=>{
-  const p = await loadPlayer();
-  data.voids = p.voids;
-  data.rate = p.rate;
-  data.lastTime = new Date(p.updated_at).getTime();
-
+  await loadPlayer();
   updateIdle();
   render();
   savePlayer();
-
-  setInterval(()=>{updateIdle();render();savePlayer();},15000);
+  loadLeaderboard();
+  setInterval(()=>{updateIdle();render();savePlayer();},1000);
 })();
 </script>
 
