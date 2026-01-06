@@ -1,280 +1,331 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8" />
-<title>ASH — Core</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>ASH Core</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Montserrat:wght@300;600&display=swap" rel="stylesheet">
 
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --bg: #050507;
+            --card: #0f0f13;
+            --accent: #a086ff;
+            --text: #e0e0e0;
+            --tab-bg: rgba(15, 15, 19, 0.85);
+        }
 
-<style>
-:root {
-  --core-speed: 10s;
-  --accent-color: #8a63ff;
-}
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-body {
-  background: #0a0a0c;
-  color: #fff;
-  font-family: 'Segoe UI', Roboto, sans-serif;
-  text-align: center;
-  margin: 0;
-  padding: 20px;
-  padding-bottom: 110px;
-  overflow: hidden; /* Предотвращаем лишний скролл */
-}
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
 
-h1 { font-weight: 300; letter-spacing: 4px; color: rgba(255,255,255,0.9); }
+        /* Страницы */
+        .page {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            height: calc(100vh - 80px);
+            overflow-y: auto;
+        }
 
-.void-card {
-  background: radial-gradient(circle at center, #16161d 0%, #000 100%);
-  border-radius: 30px;
-  padding: 40px 20px;
-  border: 1px solid rgba(255,255,255,0.05);
-}
+        .page.active { display: flex; }
 
-.void-orb {
-  width: 240px; height: 240px;
-  margin: 0 auto 30px;
-  position: relative;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-}
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 5px;
+            margin: 10px 0;
+            font-size: 24px;
+            color: var(--accent);
+            text-shadow: 0 0 15px rgba(160, 134, 255, 0.5);
+        }
 
-/* Эффект свечения вокруг ядра */
-.void-orb::after {
-  content: ''; position: absolute;
-  width: 100%; height: 100%;
-  border-radius: 50%;
-  box-shadow: 0 0 50px rgba(138, 99, 255, 0.3);
-  animation: pulse 4s ease-in-out infinite;
-}
+        /* Core Visual */
+        .core-container {
+            position: relative;
+            width: 260px;
+            height: 260px;
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
-#voidImage {
-  width: 80%; height: 80%;
-  object-fit: contain;
-  filter: drop-shadow(0 0 20px var(--accent-color));
-  animation: spin var(--core-speed) linear infinite;
-}
+        .core-glow {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(160, 134, 255, 0.2) 0%, transparent 70%);
+            animation: pulse 3s infinite ease-in-out;
+        }
 
-@keyframes spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
-@keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.5; } 50% { transform: scale(1.1); opacity: 0.8; } }
+        #coreImage {
+            width: 80%;
+            height: 80%;
+            object-fit: contain;
+            filter: drop-shadow(0 0 20px var(--accent));
+            z-index: 2;
+        }
 
-.void-amount { font-size: 38px; font-weight: 700; margin-bottom: 5px; font-variant-numeric: tabular-nums; }
-.void-sub { font-size: 13px; opacity: 0.5; text-transform: uppercase; letter-spacing: 1px; }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.15); opacity: 0.8; }
+        }
 
-.void-btn {
-  background: #fff; color: #000;
-  border: none; padding: 18px;
-  font-size: 16px; font-weight: bold;
-  border-radius: 16px; cursor: pointer;
-  width: 100%; max-width: 280px;
-  margin: 15px auto;
-  transition: transform 0.1s;
-}
-.void-btn:active { transform: scale(0.96); }
+        /* Stats */
+        .stat-group { text-align: center; margin-bottom: 20px; }
+        
+        #counter {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 36px;
+            font-weight: 700;
+            color: #fff;
+            margin: 5px 0;
+        }
 
-.void-btn.secondary {
-  background: rgba(255,255,255,0.1); color: #fff;
-  backdrop-filter: blur(10px);
-}
+        .label { font-size: 12px; text-transform: uppercase; opacity: 0.5; letter-spacing: 2px; }
 
-.void-info { margin-top: 10px; font-size: 14px; color: var(--accent-color); }
+        /* Buttons */
+        .controls {
+            width: 100%;
+            max-width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px; /* Отступ от таббара */
+        }
 
-/* Таббар и прочее */
-#tabbar {
-  position: fixed; bottom: 20px; left: 20px; right: 20px;
-  height: 70px; background: rgba(255,255,255,0.05);
-  backdrop-filter: blur(20px); border-radius: 25px;
-  display: flex; align-items: center; border: 1px solid rgba(255,255,255,0.1);
-}
-.tab { flex: 1; opacity: 0.4; font-size: 11px; cursor: pointer; transition: 0.3s; }
-.tab.active { opacity: 1; color: var(--accent-color); }
+        .btn {
+            background: var(--card);
+            border: 1px solid rgba(160, 134, 255, 0.3);
+            color: #fff;
+            padding: 15px;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
 
-.leaderboard { max-height: 60vh; overflow-y: auto; padding-right: 5px; }
-.lb-row {
-  display: flex; justify-content: space-between; padding: 15px;
-  background: rgba(255,255,255,0.03); margin-bottom: 8px; border-radius: 12px;
-}
-.lb-row.me { border: 1px solid var(--accent-color); background: rgba(138, 99, 255, 0.1); }
-</style>
+        .btn:active { transform: scale(0.97); background: var(--accent); color: #000; }
+        .btn-primary { background: var(--accent); color: #000; border: none; }
+
+        /* Rating */
+        .rating-list { width: 100%; max-width: 400px; }
+        .rating-item {
+            background: var(--card);
+            margin-bottom: 8px;
+            padding: 15px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(255,255,255,0.03);
+        }
+        .rating-item.me { border-color: var(--accent); background: rgba(160,134,255,0.1); }
+
+        /* Tabbar */
+        .tabbar {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            height: 65px;
+            background: var(--tab-bg);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            display: flex;
+            border: 1px solid rgba(255,255,255,0.08);
+            z-index: 100;
+        }
+
+        .tab-btn {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            opacity: 0.4;
+            transition: 0.3s;
+        }
+
+        .tab-btn.active { opacity: 1; color: var(--accent); }
+        .tab-btn span { font-size: 20px; margin-bottom: 4px; }
+
+    </style>
 </head>
-
 <body>
 
-<div id="game-page">
-  <h1>ASH</h1>
-  <div class="void-card">
-    <div class="void-orb">
-      <img src="https://cdn-icons-png.flaticon.com/512/1805/1805721.png" id="voidImage">
+    <div id="game-page" class="page active">
+        <h1>ASH CORE</h1>
+        <div class="core-container">
+            <div class="core-glow"></div>
+            <img src="https://cdn-icons-png.flaticon.com/512/1805/1805721.png" id="coreImage">
+        </div>
+
+        <div class="stat-group">
+            <div class="label">Energy Accumulated</div>
+            <div id="counter">0</div>
+            <div class="label" id="rate-display">Speed: 1 ASH/s</div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-primary" onclick="handleCollect()">Extract ASH</button>
+            <button class="btn" onclick="handleUpgrade()">Upgrade Core (<span id="upgrade-cost">20</span>)</button>
+        </div>
     </div>
-    <div class="void-amount" id="counter">0</div>
-    <div class="void-sub">Накопленная энергия</div>
-    
-    <button class="void-btn" onclick="collect()">ИЗВЛЕЧЬ ASH</button>
-    <button class="void-btn secondary" onclick="upgrade()">УЛУЧШИТЬ (Цена: <span id="upgradeCost">0</span>)</button>
-    
-    <div class="void-info" id="rateInfo">Скорость: 1 ASH/сек</div>
-  </div>
-</div>
 
-<div id="rating-page" style="display:none">
-  <h2>🏆 TOP EXTRACTORS</h2>
-  <div id="leaderboard" class="leaderboard"></div>
-</div>
-
-<div id="tabbar">
-  <div class="tab active" id="tab-game" onclick="showTab('game')">🌀<br>Core</div>
-  <div class="tab" id="tab-rating" onclick="showTab('rating')">🏆<br>Rank</div>
-</div>
-
-<script>
-/* ===== КОНФИГУРАЦИЯ ===== */
-const supabase = window.supabase.createClient(
-  "https://edosyzmykmoajecmaamu.supabase.co",
-  "sb_publishable_bHorYMm55LbnpSXg96WwVw_C4weLD_O"
-);
-
-const tg = Telegram.WebApp;
-tg.expand();
-
-const state = {
-  ash: 0,
-  rate: 1,
-  last_seen: Date.now(),
-  is_vip: false
-};
-
-/* ===== ЛОГИКА РАСЧЕТА (БЕЗ ПОТЕРЬ) ===== */
-function syncProgress() {
-  const now = Date.now();
-  const diffMs = now - state.last_seen;
-  
-  if (diffMs >= 1000) {
-    const seconds = Math.floor(diffMs / 1000);
-    state.ash += seconds * state.rate * (state.is_vip ? 2 : 1);
-    state.last_seen += seconds * 1000; // Оставляем миллисекунды для следующего тика
-  }
-}
-
-/* ===== ВИЗУАЛЬНОЕ ОБНОВЛЕНИЕ (60 FPS) ===== */
-function render() {
-  const now = Date.now();
-  const diffMs = now - state.last_seen;
-  // Визуально добавляем "хвост" миллисекунд для плавности
-  const visualAsh = state.ash + (diffMs / 1000 * state.rate * (state.is_vip ? 2 : 1));
-  
-  document.getElementById('counter').innerText = Math.floor(visualAsh).toLocaleString();
-  
-  const cost = 20 * state.rate * state.rate;
-  document.getElementById('upgradeCost').innerText = cost;
-  document.getElementById('rateInfo').innerText = `Скорость: ${state.rate} ASH/сек`;
-  
-  // Меняем скорость вращения Core в зависимости от rate
-  const speed = Math.max(2, 20 - state.rate); 
-  document.documentElement.style.setProperty('--core-speed', `${speed}s`);
-  
-  requestAnimationFrame(render);
-}
-
-/* ===== ДЕЙСТВИЯ ===== */
-async function collect() {
-  tg.HapticFeedback.impactOccurred("medium");
-  syncProgress();
-  await save();
-}
-
-async function upgrade() {
-  const cost = 20 * state.rate * state.rate;
-  syncProgress();
-  
-  if (state.ash >= cost) {
-    state.ash -= cost;
-    state.rate += 1;
-    tg.HapticFeedback.notificationOccurred("success");
-    await save();
-  } else {
-    tg.HapticFeedback.notificationOccurred("error");
-    tg.showAlert("Недостаточно энергии ASH");
-  }
-}
-
-/* ===== РАБОТА С БАЗОЙ ===== */
-async function loadPlayer() {
-  const user = tg.initDataUnsafe.user || { id: 12345, username: "Guest" };
-  
-  let { data: p } = await supabase
-    .from("players")
-    .select("*")
-    .eq("telegram_id", user.id)
-    .single();
-
-  if (!p) {
-    p = {
-      telegram_id: user.id,
-      username: user.username || "Unknown",
-      voids: 0,
-      rate: 1,
-      last_seen: new Date().toISOString()
-    };
-    await supabase.from("players").insert(p);
-  }
-
-  state.ash = p.voids; // В БД поле называется voids
-  state.rate = p.rate;
-  state.last_seen = new Date(p.last_seen).getTime();
-}
-
-async function save() {
-  const user = tg.initDataUnsafe.user || { id: 12345 };
-  await supabase.from("players").update({
-    voids: Math.floor(state.ash),
-    rate: state.rate,
-    last_seen: new Date(state.last_seen).toISOString()
-  }).eq("telegram_id", user.id);
-}
-
-/* ===== UI ===== */
-function showTab(tab) {
-  document.getElementById('game-page').style.display = tab === 'game' ? 'block' : 'none';
-  document.getElementById('rating-page').style.display = tab === 'rating' ? 'block' : 'none';
-  
-  document.getElementById('tab-game').classList.toggle('active', tab === 'game');
-  document.getElementById('tab-rating').classList.toggle('active', tab === 'rating');
-  
-  if (tab === 'rating') loadLeaderboard();
-}
-
-async function loadLeaderboard() {
-  const { data: list } = await supabase
-    .from("players")
-    .select("*")
-    .order("voids", { ascending: false })
-    .limit(50);
-
-  const container = document.getElementById('leaderboard');
-  container.innerHTML = list.map((p, i) => `
-    <div class="lb-row ${p.telegram_id == tg.initDataUnsafe.user?.id ? 'me' : ''}">
-      <span>${i + 1}. ${p.username}</span>
-      <span><b>${p.voids}</b></span>
+    <div id="rating-page" class="page">
+        <h1>RANKING</h1>
+        <div id="leaderboard" class="rating-list">
+            </div>
     </div>
-  `).join('');
-}
 
-/* ===== ЗАПУСК ===== */
-(async () => {
-  await loadPlayer();
-  syncProgress(); // Считаем оффлайн доход сразу
-  render();       // Запускаем цикл отрисовки
-  
-  // Фоновое сохранение раз в 15 сек
-  setInterval(() => {
-    syncProgress();
-    save();
-  }, 15000);
-})();
-</script>
+    <div class="tabbar">
+        <div class="tab-btn active" id="tab-game" onclick="switchTab('game')">
+            <span>🌀</span>CORE
+        </div>
+        <div class="tab-btn" id="tab-rating" onclick="switchTab('rating')">
+            <span>🏆</span>RANK
+        </div>
+    </div>
 
+    <script>
+        const supabase = window.supabase.createClient(
+            "https://edosyzmykmoajecmaamu.supabase.co",
+            "sb_publishable_bHorYMm55LbnpSXg96WwVw_C4weLD_O"
+        );
+
+        const tg = Telegram.WebApp;
+        tg.expand();
+
+        let state = {
+            ash: 0,
+            rate: 1,
+            last_seen: Date.now(),
+            user_id: tg.initDataUnsafe.user?.id || 0,
+            username: tg.initDataUnsafe.user?.username || "Void Walker"
+        };
+
+        // Логика расчетов
+        function syncProgress() {
+            const now = Date.now();
+            const diffMs = now - state.last_seen;
+            if (diffMs >= 1000) {
+                const seconds = Math.floor(diffMs / 1000);
+                state.ash += seconds * state.rate;
+                state.last_seen += seconds * 1000;
+            }
+        }
+
+        function render() {
+            const now = Date.now();
+            const diffMs = now - state.last_seen;
+            const visualAsh = state.ash + (diffMs / 1000 * state.rate);
+            
+            document.getElementById('counter').innerText = Math.floor(visualAsh).toLocaleString();
+            document.getElementById('rate-display').innerText = `Speed: ${state.rate} ASH/s`;
+            
+            const cost = 20 * state.rate * state.rate;
+            document.getElementById('upgrade-cost').innerText = cost;
+            
+            requestAnimationFrame(render);
+        }
+
+        async function handleCollect() {
+            tg.HapticFeedback.impactOccurred("medium");
+            syncProgress();
+            await saveToDB();
+        }
+
+        async function handleUpgrade() {
+            const cost = 20 * state.rate * state.rate;
+            syncProgress();
+            if (state.ash >= cost) {
+                state.ash -= cost;
+                state.rate++;
+                tg.HapticFeedback.notificationOccurred("success");
+                await saveToDB();
+            } else {
+                tg.HapticFeedback.notificationOccurred("error");
+                tg.showAlert("Not enough ASH energy");
+            }
+        }
+
+        // Вкладки
+        function switchTab(tab) {
+            document.getElementById('game-page').classList.toggle('active', tab === 'game');
+            document.getElementById('rating-page').classList.toggle('active', tab === 'rating');
+            
+            document.getElementById('tab-game').classList.toggle('active', tab === 'game');
+            document.getElementById('tab-rating').classList.toggle('active', tab === 'rating');
+            
+            if (tab === 'rating') loadLeaderboard();
+        }
+
+        // БД
+        async function loadData() {
+            if (!state.user_id) return;
+            
+            let { data: p, error } = await supabase
+                .from("players")
+                .select("*")
+                .eq("telegram_id", state.user_id)
+                .single();
+
+            if (!p) {
+                p = { telegram_id: state.user_id, username: state.username, voids: 0, rate: 1, last_seen: new Date().toISOString() };
+                await supabase.from("players").insert(p);
+            }
+
+            state.ash = p.voids || 0;
+            state.rate = p.rate || 1;
+            state.last_seen = new Date(p.last_seen).getTime();
+        }
+
+        async function saveToDB() {
+            if (!state.user_id) return;
+            await supabase.from("players").update({
+                voids: Math.floor(state.ash),
+                rate: state.rate,
+                last_seen: new Date(state.last_seen).toISOString(),
+                username: state.username
+            }).eq("telegram_id", state.user_id);
+        }
+
+        async function loadLeaderboard() {
+            const { data } = await supabase.from("players").select("*").order("voids", { ascending: false }).limit(20);
+            const list = document.getElementById('leaderboard');
+            list.innerHTML = data.map((player, i) => `
+                <div class="rating-item ${player.telegram_id == state.user_id ? 'me' : ''}">
+                    <span>${i+1}. ${player.username}</span>
+                    <span><b>${Math.floor(player.voids)}</b> ASH</span>
+                </div>
+            `).join('');
+        }
+
+        // Старт
+        (async () => {
+            await loadData();
+            render();
+            setInterval(() => { syncProgress(); saveToDB(); }, 15000);
+        })();
+    </script>
 </body>
 </html>
