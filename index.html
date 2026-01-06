@@ -2,273 +2,277 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8" />
-<title>Dark Idle</title>
-
+<title>ASH — Core</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
+:root {
+  --core-speed: 10s;
+  --accent-color: #8a63ff;
+}
+
 body {
-  background:#0e0e11;
-  color:#fff;
-  font-family:Arial,sans-serif;
-  text-align:center;
-  padding:20px;
-  margin:0;
-  padding-bottom:110px;
+  background: #0a0a0c;
+  color: #fff;
+  font-family: 'Segoe UI', Roboto, sans-serif;
+  text-align: center;
+  margin: 0;
+  padding: 20px;
+  padding-bottom: 110px;
+  overflow: hidden; /* Предотвращаем лишний скролл */
 }
 
-h1{font-size:26px;margin-bottom:16px}
+h1 { font-weight: 300; letter-spacing: 4px; color: rgba(255,255,255,0.9); }
 
-.void-card{
-  background:radial-gradient(circle at top,#1a1a25,#0b0b0f);
-  border-radius:24px;
-  padding:30px 20px;
-  box-shadow:0 0 40px rgba(111,66,193,.25),inset 0 0 30px rgba(0,0,0,.8);
+.void-card {
+  background: radial-gradient(circle at center, #16161d 0%, #000 100%);
+  border-radius: 30px;
+  padding: 40px 20px;
+  border: 1px solid rgba(255,255,255,0.05);
 }
 
-.void-orb{
-  width:260px;height:260px;
-  margin:0 auto 20px;
-  border-radius:50%;
-  overflow:hidden;
+.void-orb {
+  width: 240px; height: 240px;
+  margin: 0 auto 30px;
+  position: relative;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
 }
 
-#voidImage{
-  width:100%;height:100%;
-  object-fit:cover;
-  filter:drop-shadow(0 0 60px rgba(160,130,255,.75)) brightness(1.15);
-  animation:spin 60s linear infinite;
-}
-@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
-
-.void-amount{font-size:32px;font-weight:bold}
-.void-sub{font-size:14px;opacity:.7;margin-bottom:20px}
-
-.void-btn{
-  background:linear-gradient(135deg,#6f42c1,#8a63ff);
-  box-shadow:0 0 20px rgba(138,99,255,.6);
-  border:none;
-  padding:16px;
-  color:#fff;
-  font-size:16px;
-  border-radius:14px;
-  cursor:pointer;
-  width:100%;
-  max-width:320px;
-  margin:10px auto;
+/* Эффект свечения вокруг ядра */
+.void-orb::after {
+  content: ''; position: absolute;
+  width: 100%; height: 100%;
+  border-radius: 50%;
+  box-shadow: 0 0 50px rgba(138, 99, 255, 0.3);
+  animation: pulse 4s ease-in-out infinite;
 }
 
-.void-info{font-size:15px;opacity:.85}
-
-#tabbar{
-  position:fixed;bottom:12px;left:12px;right:12px;
-  height:64px;
-  background:rgba(20,20,30,.6);
-  backdrop-filter:blur(14px);
-  border-radius:20px;
-  display:flex;
-  justify-content:space-around;
-  align-items:center;
+#voidImage {
+  width: 80%; height: 80%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 20px var(--accent-color));
+  animation: spin var(--core-speed) linear infinite;
 }
 
-.tab{flex:1;color:#888;font-size:12px;cursor:pointer}
-.tab.active{color:#cbb6ff}
+@keyframes spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+@keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.5; } 50% { transform: scale(1.1); opacity: 0.8; } }
 
-.rating-card{
-  background:linear-gradient(180deg,#141420,#0b0b12);
-  border-radius:22px;
-  padding:20px;
+.void-amount { font-size: 38px; font-weight: 700; margin-bottom: 5px; font-variant-numeric: tabular-nums; }
+.void-sub { font-size: 13px; opacity: 0.5; text-transform: uppercase; letter-spacing: 1px; }
+
+.void-btn {
+  background: #fff; color: #000;
+  border: none; padding: 18px;
+  font-size: 16px; font-weight: bold;
+  border-radius: 16px; cursor: pointer;
+  width: 100%; max-width: 280px;
+  margin: 15px auto;
+  transition: transform 0.1s;
+}
+.void-btn:active { transform: scale(0.96); }
+
+.void-btn.secondary {
+  background: rgba(255,255,255,0.1); color: #fff;
+  backdrop-filter: blur(10px);
 }
 
-.top3{display:flex;gap:10px;margin-bottom:14px}
-.top3-item{flex:1;padding:12px;border-radius:14px;font-size:14px}
-.gold{color:#ffd700}.silver{color:#ddd}.bronze{color:#cd7f32}
+.void-info { margin-top: 10px; font-size: 14px; color: var(--accent-color); }
 
-.leaderboard{max-height:420px;overflow-y:auto}
-.lb-row{
-  display:flex;justify-content:space-between;
-  padding:10px;border-radius:12px;
-  background:rgba(255,255,255,.04);
-  margin-bottom:6px;
+/* Таббар и прочее */
+#tabbar {
+  position: fixed; bottom: 20px; left: 20px; right: 20px;
+  height: 70px; background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(20px); border-radius: 25px;
+  display: flex; align-items: center; border: 1px solid rgba(255,255,255,0.1);
 }
-.lb-row.me{background:rgba(140,100,255,.25);font-weight:bold}
+.tab { flex: 1; opacity: 0.4; font-size: 11px; cursor: pointer; transition: 0.3s; }
+.tab.active { opacity: 1; color: var(--accent-color); }
 
-.my-rank{
-  margin-top:14px;
-  padding:14px;
-  border-radius:16px;
-  background:rgba(140,100,255,.2);
+.leaderboard { max-height: 60vh; overflow-y: auto; padding-right: 5px; }
+.lb-row {
+  display: flex; justify-content: space-between; padding: 15px;
+  background: rgba(255,255,255,0.03); margin-bottom: 8px; border-radius: 12px;
 }
+.lb-row.me { border: 1px solid var(--accent-color); background: rgba(138, 99, 255, 0.1); }
 </style>
 </head>
 
 <body>
 
-<h1>Dark Idle</h1>
-
-<div id="game">
+<div id="game-page">
+  <h1>ASH</h1>
   <div class="void-card">
-    <div class="void-orb"><img src="void.png" id="voidImage"></div>
-    <div class="void-amount" id="counter">VOID: 0</div>
-    <div class="void-sub">Тёмная энергия конденсируется</div>
-    <button class="void-btn" onclick="collect()">Извлечь VOID</button>
-    <div class="void-info" id="info"></div>
-    <button class="void-btn" onclick="upgrade()">Улучшить добычу</button>
+    <div class="void-orb">
+      <img src="https://cdn-icons-png.flaticon.com/512/1805/1805721.png" id="voidImage">
+    </div>
+    <div class="void-amount" id="counter">0</div>
+    <div class="void-sub">Накопленная энергия</div>
+    
+    <button class="void-btn" onclick="collect()">ИЗВЛЕЧЬ ASH</button>
+    <button class="void-btn secondary" onclick="upgrade()">УЛУЧШИТЬ (Цена: <span id="upgradeCost">0</span>)</button>
+    
+    <div class="void-info" id="rateInfo">Скорость: 1 ASH/сек</div>
   </div>
 </div>
 
-<div id="rating" style="display:none">
-  <div class="rating-card">
-    <h2>🏆 Рейтинг</h2>
-    <div id="top3" class="top3"></div>
-    <div id="leaderboard" class="leaderboard"></div>
-  </div>
-  <div id="my-rank" class="my-rank"></div>
+<div id="rating-page" style="display:none">
+  <h2>🏆 TOP EXTRACTORS</h2>
+  <div id="leaderboard" class="leaderboard"></div>
 </div>
 
 <div id="tabbar">
-  <div class="tab active" onclick="showTab('game',this)">🎮<br>Игра</div>
-  <div class="tab" onclick="showTab('rating',this)">🏆<br>Рейтинг</div>
+  <div class="tab active" id="tab-game" onclick="showTab('game')">🌀<br>Core</div>
+  <div class="tab" id="tab-rating" onclick="showTab('rating')">🏆<br>Rank</div>
 </div>
 
 <script>
-/* ===== INIT ===== */
+/* ===== КОНФИГУРАЦИЯ ===== */
 const supabase = window.supabase.createClient(
   "https://edosyzmykmoajecmaamu.supabase.co",
   "sb_publishable_bHorYMm55LbnpSXg96WwVw_C4weLD_O"
 );
 
 const tg = Telegram.WebApp;
-tg.ready();
-const user = tg.initDataUnsafe.user;
+tg.expand();
 
-/* ===== STATE ===== */
-let state = {
-  voids:0,
-  rate:1,
-  is_vip:false,
-  last_seen:Date.now()
+const state = {
+  ash: 0,
+  rate: 1,
+  last_seen: Date.now(),
+  is_vip: false
 };
 
-function username(){
-  if(user.username) return "@"+user.username;
-  if(user.first_name) return user.first_name;
-  return "Player_"+user.id;
+/* ===== ЛОГИКА РАСЧЕТА (БЕЗ ПОТЕРЬ) ===== */
+function syncProgress() {
+  const now = Date.now();
+  const diffMs = now - state.last_seen;
+  
+  if (diffMs >= 1000) {
+    const seconds = Math.floor(diffMs / 1000);
+    state.ash += seconds * state.rate * (state.is_vip ? 2 : 1);
+    state.last_seen += seconds * 1000; // Оставляем миллисекунды для следующего тика
+  }
 }
 
-/* ===== LOAD ===== */
-async function loadPlayer(){
-  let {data:p} = await supabase
+/* ===== ВИЗУАЛЬНОЕ ОБНОВЛЕНИЕ (60 FPS) ===== */
+function render() {
+  const now = Date.now();
+  const diffMs = now - state.last_seen;
+  // Визуально добавляем "хвост" миллисекунд для плавности
+  const visualAsh = state.ash + (diffMs / 1000 * state.rate * (state.is_vip ? 2 : 1));
+  
+  document.getElementById('counter').innerText = Math.floor(visualAsh).toLocaleString();
+  
+  const cost = 20 * state.rate * state.rate;
+  document.getElementById('upgradeCost').innerText = cost;
+  document.getElementById('rateInfo').innerText = `Скорость: ${state.rate} ASH/сек`;
+  
+  // Меняем скорость вращения Core в зависимости от rate
+  const speed = Math.max(2, 20 - state.rate); 
+  document.documentElement.style.setProperty('--core-speed', `${speed}s`);
+  
+  requestAnimationFrame(render);
+}
+
+/* ===== ДЕЙСТВИЯ ===== */
+async function collect() {
+  tg.HapticFeedback.impactOccurred("medium");
+  syncProgress();
+  await save();
+}
+
+async function upgrade() {
+  const cost = 20 * state.rate * state.rate;
+  syncProgress();
+  
+  if (state.ash >= cost) {
+    state.ash -= cost;
+    state.rate += 1;
+    tg.HapticFeedback.notificationOccurred("success");
+    await save();
+  } else {
+    tg.HapticFeedback.notificationOccurred("error");
+    tg.showAlert("Недостаточно энергии ASH");
+  }
+}
+
+/* ===== РАБОТА С БАЗОЙ ===== */
+async function loadPlayer() {
+  const user = tg.initDataUnsafe.user || { id: 12345, username: "Guest" };
+  
+  let { data: p } = await supabase
     .from("players")
     .select("*")
-    .eq("telegram_id",user.id)
+    .eq("telegram_id", user.id)
     .single();
 
-  if(!p){
-    p={
-      telegram_id:user.id,
-      username:username(),
-      voids:0,
-      rate:1,
-      is_vip:false,
-      last_seen:new Date()
+  if (!p) {
+    p = {
+      telegram_id: user.id,
+      username: user.username || "Unknown",
+      voids: 0,
+      rate: 1,
+      last_seen: new Date().toISOString()
     };
     await supabase.from("players").insert(p);
   }
 
-  state.voids=p.voids;
-  state.rate=p.rate;
-  state.is_vip=p.is_vip;
-  state.last_seen=new Date(p.last_seen||Date.now()).getTime();
+  state.ash = p.voids; // В БД поле называется voids
+  state.rate = p.rate;
+  state.last_seen = new Date(p.last_seen).getTime();
 }
 
-/* ===== SAVE ===== */
-async function save(){
+async function save() {
+  const user = tg.initDataUnsafe.user || { id: 12345 };
   await supabase.from("players").update({
-    voids:Math.floor(state.voids),
-    rate:state.rate,
-    last_seen:new Date(),
-    username:username()
-  }).eq("telegram_id",user.id);
-}
-
-/* ===== GAME ===== */
-function tick(){
-  const now=Date.now();
-  const diff=Math.floor((now-state.last_seen)/1000);
-  if(diff>0){
-    state.voids+=diff*state.rate*(state.is_vip?2:1);
-    state.last_seen=now;
-  }
-}
-
-function render(){
-  counter.innerText=`VOID: ${Math.floor(state.voids)}`;
-  info.innerText=`Скорость: ${state.rate} VOID/сек\nЦена улучшения: ${20*state.rate*state.rate}`;
-}
-
-function collect(){
-  tg.HapticFeedback.impactOccurred("light");
-  tick();     // ← считаем ВСЮ накопленную добычу
-  render();
-  save();
-}
-
-function upgrade(){
-  const cost=20*state.rate*state.rate;
-  if(state.voids<cost){tg.showAlert("Недостаточно VOID");return;}
-  state.voids-=cost;
-  state.rate++;
-  render();
-  save();
-}
-
-/* ===== RATING ===== */
-async function loadLeaderboard(){
-  const {data:list}=await supabase
-    .from("players")
-    .select("telegram_id,username,voids,is_vip")
-    .order("voids",{ascending:false})
-    .limit(100);
-
-  top3.innerHTML="";
-  leaderboard.innerHTML="";
-
-  list.slice(0,3).forEach((p,i)=>{
-    top3.innerHTML+=`<div class="top3-item ${["gold","silver","bronze"][i]}">
-      ${i+1}. ${p.username}<br>${p.voids}
-    </div>`;
-  });
-
-  list.forEach((p,i)=>{
-    leaderboard.innerHTML+=`
-      <div class="lb-row ${p.telegram_id===user.id?"me":""}">
-        <span>${i+1}. ${p.username}</span>
-        <span>${p.voids}</span>
-      </div>`;
-  });
+    voids: Math.floor(state.ash),
+    rate: state.rate,
+    last_seen: new Date(state.last_seen).toISOString()
+  }).eq("telegram_id", user.id);
 }
 
 /* ===== UI ===== */
-function showTab(tab,el){
-  game.style.display=tab==="game"?"block":"none";
-  rating.style.display=tab==="rating"?"block":"none";
-  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-  el.classList.add("active");
-  if(tab==="rating") loadLeaderboard();
+function showTab(tab) {
+  document.getElementById('game-page').style.display = tab === 'game' ? 'block' : 'none';
+  document.getElementById('rating-page').style.display = tab === 'rating' ? 'block' : 'none';
+  
+  document.getElementById('tab-game').classList.toggle('active', tab === 'game');
+  document.getElementById('tab-rating').classList.toggle('active', tab === 'rating');
+  
+  if (tab === 'rating') loadLeaderboard();
 }
 
-/* ===== START ===== */
-(async()=>{
+async function loadLeaderboard() {
+  const { data: list } = await supabase
+    .from("players")
+    .select("*")
+    .order("voids", { ascending: false })
+    .limit(50);
+
+  const container = document.getElementById('leaderboard');
+  container.innerHTML = list.map((p, i) => `
+    <div class="lb-row ${p.telegram_id == tg.initDataUnsafe.user?.id ? 'me' : ''}">
+      <span>${i + 1}. ${p.username}</span>
+      <span><b>${p.voids}</b></span>
+    </div>
+  `).join('');
+}
+
+/* ===== ЗАПУСК ===== */
+(async () => {
   await loadPlayer();
-  tick();
-  render();
-  save();
-  loadLeaderboard();
-  setInterval(()=>{tick();render();save()},15000);
+  syncProgress(); // Считаем оффлайн доход сразу
+  render();       // Запускаем цикл отрисовки
+  
+  // Фоновое сохранение раз в 15 сек
+  setInterval(() => {
+    syncProgress();
+    save();
+  }, 15000);
 })();
 </script>
 
